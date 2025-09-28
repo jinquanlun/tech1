@@ -1,0 +1,581 @@
+/* 日式极简风格详情页样式 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+/* 基础重置和设置 */
+.detail-page-container {
+  min-height: 100vh;
+  background: #fefefe !important;
+  color: #2a2a2a;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Noto Serif SC', serif;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* 确保主要区域没有背景色 */
+.hero-section,
+.hero-content,
+.content-section,
+.section-header,
+.content-grid,
+.content-block,
+.application-grid,
+.app-category,
+.app-items,
+.app-item {
+  background: transparent !important;
+}
+
+/* 导航栏 */
+.detail-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 2rem 3rem;
+  z-index: 1000;
+  background: transparent;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #2a2a2a;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
+  font-weight: 300;
+}
+
+.back-btn:hover {
+  opacity: 0.6;
+  transform: translateX(-4px);
+}
+
+/* 主要内容区域 */
+.detail-content {
+  padding-top: 8rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
+
+/* Hero 区域 */
+.hero-section {
+  margin-bottom: 12rem;
+  padding: 6rem 0;
+}
+
+.hero-content {
+  max-width: 800px;
+  margin-left: 8%;
+}
+
+.hero-title {
+  font-size: 4rem;
+  font-weight: 300;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: #888;
+  font-weight: 400;
+  margin-bottom: 3rem;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.hero-description {
+  max-width: 600px;
+}
+
+.hero-description p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+  font-weight: 300;
+}
+
+.hero-description p:last-child {
+  margin-bottom: 0;
+}
+
+/* 内容区块 */
+.content-section {
+  margin-bottom: 10rem;
+  position: relative;
+}
+
+.section-header {
+  margin-bottom: 4rem;
+  padding-left: 8%;
+}
+
+.section-header h2 {
+  font-size: 2.2rem;
+  color: #1a1a1a;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.section-line {
+  width: 60px;
+  height: 1px;
+  background: #d0d0d0;
+  margin: 0;
+}
+
+/* 网格布局 */
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4rem 6rem;
+  max-width: 1000px;
+  margin-left: 8%;
+}
+
+.content-block {
+  padding: 0;
+}
+
+.content-block h3 {
+  font-size: 1.3rem;
+  color: #2a2a2a;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.content-block p {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 300;
+  line-height: 1.8;
+}
+
+/* 技术列表 */
+.tech-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tech-list li {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1.2rem;
+  font-weight: 300;
+  line-height: 1.8;
+}
+
+.tech-list li strong {
+  color: #2a2a2a;
+  font-weight: 500;
+}
+
+/* 效果展示 */
+.effect-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.effect-item:last-child {
+  border-bottom: none;
+}
+
+.effect-name {
+  font-size: 1rem;
+  color: #2a2a2a;
+  font-weight: 400;
+}
+
+.effect-value {
+  font-size: 1rem;
+  color: #888;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
+  font-weight: 300;
+}
+
+/* 应用领域 */
+.application-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6rem 4rem;
+  margin-left: 8%;
+  max-width: 1000px;
+}
+
+.app-category h3 {
+  font-size: 1.3rem;
+  color: #2a2a2a;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  letter-spacing: -0.01em;
+}
+
+.app-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.app-item h4 {
+  font-size: 1rem;
+  color: #2a2a2a;
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+}
+
+.app-item p {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+/* 解决方案特殊样式 */
+.solution-content {
+  margin-left: 8%;
+  max-width: 1000px;
+}
+
+.solution-highlight {
+  margin-bottom: 4rem;
+  padding: 3rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.solution-highlight h3 {
+  font-size: 1.8rem;
+  color: #1a1a1a;
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.solution-highlight p {
+  font-size: 1.1rem;
+  color: #555;
+  font-weight: 300;
+  line-height: 1.8;
+  max-width: 700px;
+}
+
+.advantages-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4rem;
+}
+
+.advantage-item {
+  padding: 2rem 0;
+}
+
+.advantage-item h4 {
+  font-size: 1.4rem;
+  color: #2a2a2a;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.advantage-item p {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 300;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  max-width: 600px;
+}
+
+.advantage-note {
+  font-size: 0.9rem;
+  color: #888;
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* 流程步骤 */
+.process-steps {
+  display: flex;
+  gap: 3rem;
+  margin-top: 2rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.step-number {
+  font-size: 0.8rem;
+  color: #888;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
+  font-weight: 300;
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+.step-text {
+  font-size: 0.9rem;
+  color: #2a2a2a;
+  font-weight: 400;
+}
+
+/* 团队展示 */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4rem 6rem;
+  margin-left: 8%;
+  max-width: 1000px;
+}
+
+.team-member {
+  padding: 0;
+}
+
+.team-member h4 {
+  font-size: 1.2rem;
+  color: #2a2a2a;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.team-member .title {
+  font-size: 0.9rem;
+  color: #888;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
+  font-weight: 300;
+  display: block;
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.team-member p {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+/* 公司价值观 */
+.values-content {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4rem;
+  margin-left: 8%;
+  max-width: 1000px;
+  margin-bottom: 4rem;
+}
+
+.value-item h4 {
+  font-size: 1.1rem;
+  color: #2a2a2a;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.value-item p {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+.company-footer {
+  margin-left: 8%;
+  padding: 3rem 0;
+  border-top: 1px solid #f0f0f0;
+}
+
+.company-footer p {
+  font-size: 1.1rem;
+  color: #2a2a2a;
+  font-weight: 400;
+  margin-bottom: 1rem;
+}
+
+.company-lab {
+  font-size: 0.9rem;
+  color: #888;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+}
+
+/* 公司统计数据 */
+.company-content {
+  margin-left: 8%;
+  max-width: 1000px;
+}
+
+.company-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3rem;
+  margin-bottom: 4rem;
+  padding: 3rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  color: #1a1a1a;
+  font-weight: 300;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #888;
+  font-weight: 300;
+}
+
+.company-description p {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 300;
+  line-height: 1.8;
+  max-width: 700px;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .detail-content {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .hero-content,
+  .section-header,
+  .content-grid,
+  .application-grid,
+  .solution-content,
+  .team-grid,
+  .values-content,
+  .company-footer,
+  .company-content {
+    margin-left: 4%;
+  }
+
+  .content-grid,
+  .application-grid,
+  .team-grid {
+    gap: 3rem 4rem;
+  }
+
+  .hero-title {
+    font-size: 3.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-nav {
+    padding: 1.5rem 2rem;
+  }
+
+  .detail-content {
+    padding-top: 6rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .hero-content,
+  .section-header,
+  .content-grid,
+  .application-grid,
+  .solution-content,
+  .team-grid,
+  .values-content,
+  .company-footer,
+  .company-content {
+    margin-left: 0;
+  }
+
+  .hero-section {
+    margin-bottom: 8rem;
+    padding: 3rem 0;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .content-section {
+    margin-bottom: 6rem;
+  }
+
+  .section-header {
+    margin-bottom: 3rem;
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .application-grid {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+
+  .team-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .values-content {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .company-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  .process-steps {
+    flex-direction: column;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .company-stats {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+}

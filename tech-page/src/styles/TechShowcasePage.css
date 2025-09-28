@@ -12,7 +12,7 @@
   position: relative;
   height: 100vh;
   background: #15181A;
-  font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Open Sans', Helvetica, Arial, sans-serif;
   border: none; /* 确保容器无边框 */
   margin: 0;
   padding: 0;
@@ -150,56 +150,24 @@
   background: transparent;
   color: white;
   padding: 0;
-  font-family: "Chakra Petch", sans-serif;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', "Chakra Petch", sans-serif;
   font-size: 0.625rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  position: fixed;
+  position: relative;
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 2px;
   font-weight: 500;
   height: 2.25rem;
   width: 80px;
-  z-index: 1000;
+  margin: 20px auto 0;
   pointer-events: auto;
   transform: skewX(calc(-1 * var(--skew-deg)));
   transition: all 0.3s ease;
-  opacity: 0;
-}
-
-/* 只显示active页面的按钮 */
-.skw-page.active .tech-button,
-.skw-page.active .tech-button-right {
   opacity: 1;
 }
 
-/* HPH左侧Video按钮位置 */
-.skw-page-1.active .skw-page__half--left .tech-button {
-  left: 25%;
-  top: 50%;
-  transform: translate(-50%, -50%) skewX(calc(-1 * var(--skew-deg)));
-}
-
-/* HPH右侧Detail按钮位置 */
-.skw-page-1.active .skw-page__half--right .tech-button-right {
-  left: 75%;
-  top: 60%;
-  transform: translate(-50%, -50%) skewX(calc(-1 * var(--skew-deg)));
-}
-
-/* PEF左侧Video按钮位置 */
-.skw-page-2.active .skw-page__half--left .tech-button {
-  left: 25%;
-  top: 50%;
-  transform: translate(-50%, -50%) skewX(calc(-1 * var(--skew-deg)));
-}
-
-/* PEF右侧Detail按钮位置 */
-.skw-page-2.active .skw-page__half--right .tech-button-right {
-  left: 75%;
-  top: 60%;
-  transform: translate(-50%, -50%) skewX(calc(-1 * var(--skew-deg)));
-}
+/* 按钮在内容流中显示，无需特殊定位 */
 
 .tech-button:before, .tech-button-right:before {
   content: "";
@@ -380,7 +348,7 @@
   background: transparent;
   z-index: 100; /* 确保导航栏在最上层 */
   padding: 30px 0 20px 0;
-  font-family: "Chakra Petch", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', "Chakra Petch", -apple-system, BlinkMacSystemFont, sans-serif;
   pointer-events: none;
 }
 
@@ -414,7 +382,7 @@
   background: transparent;
   color: white;
   padding: 0;
-  font-family: "Chakra Petch", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', "Chakra Petch", -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.625rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   position: relative;

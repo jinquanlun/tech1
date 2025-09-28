@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 使用系统安装的站酷庆科黄油体字体 */
+
 /* Reset and base styles */
 * {
   margin: 0;
@@ -13,8 +15,8 @@ body, html {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
-  font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
-  font-weight: 300;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'PingFang SC', 'Microsoft YaHei', '微软雅黑', 'Hiragino Sans GB', 'Source Han Sans CN', 'WenQuanYi Micro Hei', sans-serif !important;
+  font-weight: 400 !important;
   line-height: 1.6;
 }
 
@@ -29,10 +31,15 @@ body {
   color: #2c3e50;
 }
 
-/* Typography */
+/* Typography - 强制使用黄油体 */
+*, *::before, *::after {
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'PingFang SC', 'Microsoft YaHei', '微软雅黑', 'Hiragino Sans GB', 'Source Han Sans CN', 'WenQuanYi Micro Hei', sans-serif !important;
+}
+
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 300;
+  font-weight: 400 !important;
   line-height: 1.2;
+  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'PingFang SC', 'Microsoft YaHei', '微软雅黑', 'Hiragino Sans GB', 'Source Han Sans CN', 'WenQuanYi Micro Hei', sans-serif !important;
 }
 
 /* Responsive text */
