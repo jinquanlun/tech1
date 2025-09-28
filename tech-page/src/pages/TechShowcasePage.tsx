@@ -305,16 +305,18 @@ const TechShowcasePage: React.FC = () => {
               <div className="skw-page__skewed">
                 <div className="skw-page__content">
                   <p className="skw-page__description">
-                  超高压纳米破碎技术利用300-400MPa超高压质阀
+                  鎏鲜科技专注于冷链食材保鲜技术，
                     <br />
-                    通过空化、剪切与撞击实现纳米级破碎与灭菌。
+                    融合冰温保鲜、纳米微晶、超冷冰沙与全冷链系统
+                    <br />
+                    实现食材15天保持一级鲜度。
                   </p>
                   <p className="skw-page__description">
-                  可广泛应用于果汁、化妆品、制药等领域,
+                  其“鲜到鲜”技术在不改变食材形态的前提下，
                     <br />
-                    低温条件下保留营养成分，提升产品稳定性与吸收率，
+                    有效抑制冰晶生成，减少汁液流失，
                     <br />
-                    具备高效、连续化生产优势，支持多行业物料精细化处理需求
+                    适用于肉类、果蔬等多种场景，重新定义保鲜标准
                   </p>
                   <button className="tech-button-right" onClick={() => navigate('/tech/pef')}>
                     <span className="vline"></span>

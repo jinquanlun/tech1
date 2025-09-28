@@ -10,23 +10,25 @@
   overflow: hidden;
 }
 
-/* Corner decorations - only within homepage */
+/* Corner decorations - FORCE ALL TO START FROM ABSOLUTE VIEWPORT CENTER */
 .homepage .corner-decoration {
-  position: absolute !important;
+  position: fixed !important;
   font-size: 1.5em;
   color: #34495e;
   font-weight: 300;
   z-index: 100;
   font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Courier New', monospace;
-  /* Force initial position - center of viewport */
-  top: 50% !important;
-  left: 50% !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: translate(-50%, -50%) !important;
-  transition: all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  /* FORCE: All elements start at exact screen center */
+  top: calc(50vh - 0.75em) !important;
+  left: calc(50vw - 1.5ch) !important;
+  right: unset !important;
+  bottom: unset !important;
+  transform: none !important;
+  transition: all 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
   opacity: 1 !important;
   visibility: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Top left corner */
@@ -65,40 +67,43 @@
   transform: translate(0, 0) !important;
 }
 
-/* Side vertical lines - only within homepage */
+/* Side vertical lines - FORCE ALL TO START FROM ABSOLUTE VIEWPORT CENTER */
 .homepage .side-decoration {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: translate(-50%, -50%) !important;
+  position: fixed !important;
   font-size: 2em;
   color: #34495e;
   font-weight: 300;
   z-index: 100;
   font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Courier New', monospace;
-  transition: all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  /* FORCE: All elements start at exact screen center */
+  top: calc(50vh - 1em) !important;
+  left: calc(50vw - 0.5ch) !important;
+  right: unset !important;
+  bottom: unset !important;
+  transform: none !important;
+  transition: all 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
   opacity: 1 !important;
   visibility: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Left side */
 .homepage .side-decoration.side-left.animated {
-  top: 50% !important;
+  top: calc(50vh - 1em) !important;
   left: 2rem !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: translate(0, -50%) !important;
+  right: unset !important;
+  bottom: unset !important;
+  transform: none !important;
 }
 
 /* Right side */
 .homepage .side-decoration.side-right.animated {
-  top: 50% !important;
+  top: calc(50vh - 1em) !important;
   right: 2rem !important;
-  left: auto !important;
-  bottom: auto !important;
-  transform: translate(0, -50%) !important;
+  left: unset !important;
+  bottom: unset !important;
+  transform: none !important;
 }
 
 /* Background mathematical symbols decoration */

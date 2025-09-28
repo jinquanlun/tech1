@@ -56,6 +56,49 @@ const HomePage: React.FC = () => {
   const [showTitle, setShowTitle] = useState(false);
   const [showSubtitle, setShowSubtitle] = useState(false);
 
+  // Direct inline styles to bypass ALL CSS conflicts
+  const getDecorationStyle = (position: string, animated: boolean) => {
+    const baseStyle = {
+      position: 'absolute' as const,
+      fontSize: '1.5em',
+      color: '#34495e',
+      fontWeight: 300,
+      zIndex: 9999,
+      fontFamily: "'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Courier New', monospace",
+      transition: 'all 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+      margin: 0,
+      padding: 0,
+    };
+
+    if (!animated) {
+      // Start from exact center
+      return {
+        ...baseStyle,
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+      };
+    }
+
+    // Animate to final positions
+    switch (position) {
+      case 'top-left':
+        return { ...baseStyle, top: '2rem', left: '2rem', transform: 'none' };
+      case 'top-right':
+        return { ...baseStyle, top: '2rem', right: '2rem', transform: 'none' };
+      case 'bottom-left':
+        return { ...baseStyle, bottom: '2rem', left: '2rem', transform: 'none' };
+      case 'bottom-right':
+        return { ...baseStyle, bottom: '2rem', right: '2rem', transform: 'none' };
+      case 'side-left':
+        return { ...baseStyle, top: '50%', left: '2rem', transform: 'translateY(-50%)' };
+      case 'side-right':
+        return { ...baseStyle, top: '50%', right: '2rem', transform: 'translateY(-50%)' };
+      default:
+        return baseStyle;
+    }
+  };
+
   useEffect(() => {
     // Start new animation sequence
 
@@ -69,11 +112,11 @@ const HomePage: React.FC = () => {
       setShowFullscreenMath(true);
     }, 1000);
 
-    // Hide fullscreen math and start title animation (2500ms)
+    // Hide fullscreen math and start title animation (2200ms)
     setTimeout(() => {
       setShowFullscreenMath(false);
       setShowTitle(true);
-    }, 2500);
+    }, 2200);
 
     return () => {
       fullscreenMathShuffler?.destroy();
@@ -130,7 +173,7 @@ const HomePage: React.FC = () => {
       const fullscreenInstance = new TextShuffler(
         fullscreenMathRef.current,
         MATH_SYMBOLS,
-        { durationInterval: 30, wordDuration: 0.008 }
+        { durationInterval: 25, wordDuration: 0.012 }
       );
       setFullscreenMathShuffler(fullscreenInstance);
       fullscreenInstance.show();
@@ -138,16 +181,16 @@ const HomePage: React.FC = () => {
   }, [showFullscreenMath]);
 
   return (
-    <div className="homepage">
-      {/* Corner decorations */}
-      <div className={`corner-decoration corner-top-left ${decorationsAnimated ? 'animated' : ''}`}>+&nbsp;&nbsp;-</div>
-      <div className={`corner-decoration corner-top-right ${decorationsAnimated ? 'animated' : ''}`}>-&nbsp;&nbsp;+</div>
-      <div className={`corner-decoration corner-bottom-left ${decorationsAnimated ? 'animated' : ''}`}>+&nbsp;&nbsp;-</div>
-      <div className={`corner-decoration corner-bottom-right ${decorationsAnimated ? 'animated' : ''}`}>-&nbsp;&nbsp;+</div>
+    <div className="homepage" style={{ position: 'relative', minHeight: '100vh' }}>
+      {/* Corner decorations with forced inline styles */}
+      <div style={getDecorationStyle('top-left', decorationsAnimated)}>+&nbsp;&nbsp;-</div>
+      <div style={getDecorationStyle('top-right', decorationsAnimated)}>-&nbsp;&nbsp;+</div>
+      <div style={getDecorationStyle('bottom-left', decorationsAnimated)}>+&nbsp;&nbsp;-</div>
+      <div style={getDecorationStyle('bottom-right', decorationsAnimated)}>-&nbsp;&nbsp;+</div>
 
-      {/* Side decorations */}
-      <div className={`side-decoration side-left ${decorationsAnimated ? 'animated' : ''}`}>|</div>
-      <div className={`side-decoration side-right ${decorationsAnimated ? 'animated' : ''}`}>|</div>
+      {/* Side decorations with forced inline styles */}
+      <div style={{...getDecorationStyle('side-left', decorationsAnimated), fontSize: '2em'}}>|</div>
+      <div style={{...getDecorationStyle('side-right', decorationsAnimated), fontSize: '2em'}}>|</div>
 
       {/* Fullscreen math symbols overlay */}
       {showFullscreenMath && (
