@@ -1,0 +1,947 @@
+/* TechShowcasePage Styles - Based on CodePen Skewed Scroll */
+@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap");
+
+*, *:before, *:after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.skw-pages {
+  overflow: hidden;
+  position: relative;
+  height: 100vh;
+  background: #15181A;
+  font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  border: none; /* 确保容器无边框 */
+  margin: 0;
+  padding: 0;
+}
+
+/* Variables */
+:root {
+  --skew-deg: 18deg;
+  --magic-vh: 32.4vh; /* this number is magic and depends on skew angle */
+  --scroll-time: 1s;
+}
+
+.skw-page {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100vh; /* 默认全屏 */
+  z-index: 1;
+}
+
+.skw-page.active {
+  z-index: 2;
+}
+
+.skw-page.active .skw-page__half {
+  transform: translate3d(0, 0, 0);
+}
+
+/* 移除分屏模式 - 恢复全页面布局 */
+
+.skw-page__half {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100vh;
+  transition: transform var(--scroll-time);
+}
+
+/* 全页面模式 - 保持默认高度 */
+
+/* 移除分屏模式的详情页样式 */
+
+.skw-page__half--left {
+  left: 0;
+  transform: translate3d(calc(-1 * var(--magic-vh)), 100%, 0);
+}
+
+.skw-page__half--right {
+  left: 50%;
+  transform: translate3d(var(--magic-vh), -100%, 0);
+}
+
+
+/* 恢复原始的全页面滚动动画效果 - 基于CodePen原型 */
+/* 不需要focused/unfocused，使用active状态 */
+
+.skw-page__skewed {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  width: 140%;
+  height: 100%;
+  transform: skewX(calc(-1 * var(--skew-deg)));
+  background: #000;
+}
+
+.skw-page__half--left .skw-page__skewed {
+  left: -40%;
+}
+
+.skw-page__half--right .skw-page__skewed {
+  right: -40%;
+}
+
+.skw-page__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-flow: column wrap;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0 30%;
+  color: #fff;
+  transform: skewX(var(--skew-deg));
+  transition: transform var(--scroll-time), opacity var(--scroll-time);
+  background-size: cover;
+}
+
+.skw-page__half--left .skw-page__content {
+  padding-left: 30%;
+  padding-right: 30%;
+  transform-origin: 100% 0;
+}
+
+.skw-page__half--right .skw-page__content {
+  padding-left: 30%;
+  padding-right: 30%;
+  transform-origin: 0 100%;
+}
+
+.skw-page.inactive .skw-page__content {
+  opacity: 1;
+  transform: skewX(var(--skew-deg));
+}
+
+.skw-page__heading {
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  font-size: 25px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.skw-page__description {
+  font-size: 18px;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.skw-page__link {
+  color: #FFA0A0;
+}
+
+/* Tech specific styling - CodePen style buttons */
+.tech-button, .tech-button-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent;
+  color: white;
+  padding: 0;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 0.625rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  position: fixed;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 500;
+  height: 2.25rem;
+  width: 80px;
+  z-index: 1000;
+  pointer-events: auto;
+  transform: skewX(calc(-1 * var(--skew-deg)));
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+/* 只显示active页面的按钮 */
+.skw-page.active .tech-button,
+.skw-page.active .tech-button-right {
+  opacity: 1;
+}
+
+/* HPH左侧Video按钮位置 */
+.skw-page-1.active .skw-page__half--left .tech-button {
+  left: 25%;
+  top: 50%;
+  transform: translate(-50%, -50%) skewX(calc(-1 * var(--skew-deg)));
+}
+
+/* HPH右侧Detail按钮位置 */
+.skw-page-1.active .skw-page__half--right .tech-button-right {
+  left: 75%;
+  top: 60%;
+  transform: translate(-50%, -50%) skewX(calc(-1 * var(--skew-deg)));
+}
+
+/* PEF左侧Video按钮位置 */
+.skw-page-2.active .skw-page__half--left .tech-button {
+  left: 25%;
+  top: 50%;
+  transform: translate(-50%, -50%) skewX(calc(-1 * var(--skew-deg)));
+}
+
+/* PEF右侧Detail按钮位置 */
+.skw-page-2.active .skw-page__half--right .tech-button-right {
+  left: 75%;
+  top: 60%;
+  transform: translate(-50%, -50%) skewX(calc(-1 * var(--skew-deg)));
+}
+
+.tech-button:before, .tech-button-right:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  transform: translateX(-1px) translateY(-1px);
+  border-top: 1px solid #fff;
+  border-left: 1px solid #fff;
+  transition: all 0.25s ease-in-out;
+  pointer-events: none;
+}
+
+.tech-button:after, .tech-button-right:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 4px;
+  transform: translateX(1px) translateY(-1px);
+  border-top: 1px solid #fff;
+  border-right: 1px solid #fff;
+  transition: all 0.25s ease-in-out;
+  pointer-events: none;
+}
+
+.tech-button:hover:before, .tech-button-right:hover:before {
+  width: 100%;
+}
+
+.tech-button:hover:after, .tech-button-right:hover:after {
+  height: 100%;
+}
+
+.tech-button:hover .vline:before, .tech-button-right:hover .vline:before {
+  height: 100%;
+}
+
+.tech-button:hover .vline:after, .tech-button-right:hover .vline:after {
+  width: 100%;
+}
+
+.tech-button:hover, .tech-button-right:hover {
+  animation: blink 0.1s ease-in-out 3;
+}
+
+.tech-button .text, .tech-button-right .text {
+  padding: 0 0.75rem;
+  pointer-events: none;
+}
+
+.vline {
+  pointer-events: none;
+}
+
+.vline:before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  transform: translateX(-1px) translateY(1px);
+  border-bottom: 1px solid #fff;
+  border-left: 1px solid #fff;
+  transition: all 0.25s ease-in-out;
+  pointer-events: none;
+}
+
+.vline:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 4px;
+  height: 4px;
+  transform: translateX(1px) translateY(1px);
+  border-bottom: 1px solid #fff;
+  border-right: 1px solid #fff;
+  transition: all 0.25s ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+
+/* 品类内容显示样式 */
+.category-content {
+  animation: fadeInContent 0.6s ease-out;
+}
+
+@keyframes fadeInContent {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-content h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.category-desc {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.category-details {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0;
+}
+
+/* PEF页面品类内容文字颜色调整 */
+.skw-page-2 .category-content h3,
+.skw-page-2 .category-desc,
+.skw-page-2 .category-details {
+  color: #333;
+}
+
+.skw-page-2 .category-desc {
+  color: rgba(51, 51, 51, 0.9);
+}
+
+.skw-page-2 .category-details {
+  color: rgba(51, 51, 51, 0.8);
+}
+
+.category-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.category-links span {
+  color: #888;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.2s ease;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.category-links span:hover {
+  color: #fff;
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 底部导航条 - CodePen风格按钮 */
+.category-navigation {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: transparent;
+  z-index: 100; /* 确保导航栏在最上层 */
+  padding: 30px 0 20px 0;
+  font-family: "Chakra Petch", -apple-system, BlinkMacSystemFont, sans-serif;
+  pointer-events: none;
+}
+
+/* 单一导航条 - 位于页面底部 */
+
+.category-buttons {
+  pointer-events: auto;
+}
+
+.category-nav-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+  text-align: center;
+}
+
+.category-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  align-items: center;
+}
+
+/* CodePen风格导航按钮 */
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent;
+  color: white;
+  padding: 0;
+  font-family: "Chakra Petch", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.625rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 500;
+  height: 2.25rem;
+  transition: all 0.25s ease-in-out;
+}
+
+.nav-btn:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  transform: translateX(-1px) translateY(-1px);
+  border-top: 1px solid #fff;
+  border-left: 1px solid #fff;
+  transition: all 0.25s ease-in-out;
+}
+
+.nav-btn:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 4px;
+  transform: translateX(1px) translateY(-1px);
+  border-top: 1px solid #fff;
+  border-right: 1px solid #fff;
+  transition: all 0.25s ease-in-out;
+}
+
+.nav-btn:hover:before {
+  width: 100%;
+}
+
+.nav-btn:hover:after {
+  height: 100%;
+}
+
+.nav-btn:hover .vline:before {
+  height: 100%;
+}
+
+.nav-btn:hover .vline:after {
+  width: 100%;
+}
+
+.nav-btn:hover {
+  animation: blink 0.1s ease-in-out 3;
+}
+
+.nav-btn .text {
+  padding: 0 0.75rem;
+}
+
+.vline:before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  transform: translateX(-1px) translateY(1px);
+  border-bottom: 1px solid #fff;
+  border-left: 1px solid #fff;
+  transition: all 0.25s ease-in-out;
+  pointer-events: none;
+}
+
+.vline:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 4px;
+  height: 4px;
+  transform: translateX(1px) translateY(1px);
+  border-bottom: 1px solid #fff;
+  border-right: 1px solid #fff;
+  transition: all 0.25s ease-in-out;
+  pointer-events: none;
+}
+
+.nav-btn.active {
+  color: #03f4d3;
+  border-color: rgba(3, 244, 211, 0.5);
+}
+
+.nav-btn.active:before,
+.nav-btn.active:after,
+.nav-btn.active .vline:before,
+.nav-btn.active .vline:after {
+  border-color: #03f4d3;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 品类详情页面 - 斜切分屏效果 */
+.category-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 50; /* 降低z-index，确保导航栏可见 */
+  background: #1e1c21;
+  animation: slideInFromRight 0.8s cubic-bezier(0.770, 0.000, 0.175, 1.000);
+}
+
+/* 移除分屏模式相关样式 */
+
+@keyframes slideInFromRight {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.detail-page {
+  width: 100%;
+  height: 100vh; /* 全页面模式 */
+  position: relative;
+  overflow: hidden;
+}
+
+.detail-page__half {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100vh; /* 全页面模式 */
+  transition: transform 0.8s cubic-bezier(0.770, 0.000, 0.175, 1.000);
+}
+
+.detail-page__half--left {
+  left: 0;
+  animation: slideInLeft 1s cubic-bezier(0.770, 0.000, 0.175, 1.000) 0.3s both;
+}
+
+.detail-page__half--right {
+  left: 50%;
+  animation: slideInRight 1s cubic-bezier(0.770, 0.000, 0.175, 1.000) 0.5s both;
+}
+
+@keyframes slideInLeft {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.detail-page__skewed {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  width: 140%;
+  height: 100%;
+  transform: skewX(calc(-1 * var(--skew-deg)));
+}
+
+.detail-page__half--left .detail-page__skewed {
+  left: -40%;
+}
+
+.detail-page__half--right .detail-page__skewed {
+  right: -40%;
+}
+
+.detail-page__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-flow: column wrap;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding: 5% 10%;
+  color: #fff;
+  transform: skewX(var(--skew-deg));
+  text-align: center;
+  overflow-y: auto;
+}
+
+/* 左侧内容特殊样式 */
+.detail-page__half--left .detail-page__content {
+  padding: 5% 8% 5% 15%;
+}
+
+/* 右侧内容特殊样式 */
+.detail-page__half--right .detail-page__content {
+  padding: 5% 25% 5% 10%;
+  text-align: left;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.detail-page__content h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.detail-page__content h3 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #fff;
+  text-align: center;
+}
+
+.detail-page__content p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+/* 右侧文字特殊样式 */
+.detail-page__half--right .detail-page__content h3 {
+  text-align: center;
+  margin-left: 0;
+  width: 24em; /* 和下面的文字保持相同宽度 */
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+
+.detail-page__half--right .detail-page__content p {
+  text-align: left;
+  line-height: 1.8;
+  font-size: 0.9rem;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  white-space: normal;
+  width: 24em; /* 大约24个字的宽度 */
+  max-width: 100%;
+  margin: 0;
+}
+
+.back-button {
+  background: #de1663;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* 兼容原有的nav-links样式 */
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.nav-links span {
+  color: #888;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.nav-links span:hover {
+  color: #fff;
+}
+
+.nav-links span:first-child {
+  color: #fff;
+  border-bottom: 1px solid #fff;
+  padding-bottom: 2px;
+}
+
+/* Page specific backgrounds */
+.skw-page-1 .skw-page__half--left .skw-page__content {
+  background: #0a0a0a; /* HPH左侧深黑色 */
+}
+
+.skw-page-1 .skw-page__half--right .skw-page__content {
+  background: #2a2a2a; /* HPH右侧灰色 */
+}
+
+.skw-page-2 .skw-page__half--left .skw-page__content {
+  background: #1a1d24; /* PEF左侧深蓝灰色 */
+}
+
+.skw-page-2 .skw-page__half--right .skw-page__content {
+  background: #2a3441; /* PEF右侧深蓝灰色 */
+  color: #ffffff !important; /* 白色文字 */
+}
+
+.skw-page-2 .skw-page__half--right .skw-page__description {
+  color: #ffffff !important; /* 确保描述文字是白色 */
+}
+
+.skw-page-2 .skw-page__half--right .tech-button-right {
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  :root {
+    --skew-deg: 12deg;
+    --magic-vh: 20vh;
+  }
+
+  .skw-page__content {
+    padding: 0 20%;
+  }
+
+  .skw-page__heading {
+    font-size: 20px;
+  }
+
+  .skw-page__description {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --skew-deg: 8deg;
+    --magic-vh: 15vh;
+  }
+
+  .skw-page__content {
+    padding: 0 15%;
+  }
+
+  .skw-page__heading {
+    font-size: 18px;
+  }
+
+  .skw-page__description {
+    font-size: 14px;
+  }
+
+  .tech-button {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .nav-links span {
+    font-size: 12px;
+  }
+
+  .category-links span {
+    font-size: 12px;
+  }
+
+  .nav-btn {
+    font-size: 0.5rem;
+    height: 2rem;
+    gap: 8px;
+  }
+
+  .nav-btn .text {
+    padding: 0 0.5rem;
+  }
+
+  .category-navigation {
+    padding: 20px 0 15px 0;
+  }
+
+  .category-nav-content {
+    padding: 0 20px;
+  }
+
+  .category-buttons {
+    gap: 8px;
+  }
+}
+
+/* 品类详情页面响应式样式 */
+@media (max-width: 768px) {
+  .detail-page__half {
+    width: 100%;
+    height: 50vh;
+  }
+
+  .detail-page__half--left {
+    top: 0;
+  }
+
+  .detail-page__half--right {
+    top: 50%;
+    left: 0;
+  }
+
+  .detail-page__skewed {
+    transform: none;
+    width: 100%;
+  }
+
+  .detail-page__half--left .detail-page__skewed,
+  .detail-page__half--right .detail-page__skewed {
+    left: 0;
+    right: 0;
+  }
+
+  .detail-page__content {
+    transform: none;
+    padding: 20px;
+  }
+
+  .detail-page__content h2 {
+    font-size: 1.8rem;
+  }
+
+  .detail-page__content h3 {
+    font-size: 1.4rem;
+  }
+
+  .detail-page__content p {
+    font-size: 0.9rem;
+  }
+
+  .category-buttons {
+    gap: 8px;
+  }
+
+  .category-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .detail-page__content {
+    padding: 15px;
+  }
+
+  .detail-page__content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .detail-page__content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+
+  .detail-page__content p {
+    font-size: 0.8rem;
+    margin-bottom: 20px;
+  }
+
+  .back-button {
+    padding: 10px 24px;
+    font-size: 12px;
+  }
+
+  .category-navigation {
+    padding: 15px 0;
+  }
+
+  .category-nav-content h3 {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+
+  .nav-btn {
+    font-size: 0.45rem;
+    height: 1.8rem;
+  }
+
+  .nav-btn .text {
+    padding: 0 0.4rem;
+  }
+
+  .category-navigation {
+    padding: 15px 0 10px 0;
+  }
+
+  .category-nav-content {
+    padding: 0 15px;
+  }
+
+  .category-buttons {
+    gap: 6px;
+  }
+}

@@ -1,0 +1,435 @@
+/* HomePage styles */
+.homepage {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Corner decorations - only within homepage */
+.homepage .corner-decoration {
+  position: absolute !important;
+  font-size: 1.5em;
+  color: #34495e;
+  font-weight: 300;
+  z-index: 100;
+  font-family: 'Courier New', monospace;
+  /* Force initial position - center of viewport */
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  transition: all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Top left corner */
+.homepage .corner-decoration.corner-top-left.animated {
+  top: 2rem !important;
+  left: 2rem !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(0, 0) !important;
+}
+
+/* Top right corner */
+.homepage .corner-decoration.corner-top-right.animated {
+  top: 2rem !important;
+  right: 2rem !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: translate(0, 0) !important;
+}
+
+/* Bottom left corner */
+.homepage .corner-decoration.corner-bottom-left.animated {
+  bottom: 2rem !important;
+  left: 2rem !important;
+  top: auto !important;
+  right: auto !important;
+  transform: translate(0, 0) !important;
+}
+
+/* Bottom right corner */
+.homepage .corner-decoration.corner-bottom-right.animated {
+  bottom: 2rem !important;
+  right: 2rem !important;
+  top: auto !important;
+  left: auto !important;
+  transform: translate(0, 0) !important;
+}
+
+/* Side vertical lines - only within homepage */
+.homepage .side-decoration {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  font-size: 2em;
+  color: #34495e;
+  font-weight: 300;
+  z-index: 100;
+  font-family: 'Courier New', monospace;
+  transition: all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Left side */
+.homepage .side-decoration.side-left.animated {
+  top: 50% !important;
+  left: 2rem !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(0, -50%) !important;
+}
+
+/* Right side */
+.homepage .side-decoration.side-right.animated {
+  top: 50% !important;
+  right: 2rem !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: translate(0, -50%) !important;
+}
+
+/* Background mathematical symbols decoration */
+.math-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.math-symbols {
+  position: relative;
+  width: 420px;
+  height: 220px;
+  font-size: 1.0em;
+  line-height: 1.6em;
+  color: #34495e;
+  opacity: 0.75;
+  font-family: 'Times', 'Times New Roman', serif;
+  text-align: left;
+}
+
+.math-symbols .letter-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  text-align: center;
+  color: #34495e;
+  transition: all 0.3s ease;
+}
+
+.math-symbols .letter-wrapper.special-char {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+/* Main content container */
+.content-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 改为居中 */
+  padding: 0 6%;
+  height: 100vh;
+}
+
+/* Left content area - unified content block */
+.left-content {
+  width: 100%; /* 改为全宽 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; /* 改为居中对齐 */
+  text-align: center; /* 添加文字居中 */
+}
+
+/* Content wrapper for unified positioning */
+.content-block {
+  width: 100%;
+}
+
+/* Main title styles */
+.main-title {
+  margin-bottom: 1.8rem;
+}
+
+.main-title .text-line {
+  margin: 0.4rem 0;
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  font-weight: 600;
+  color: #1a252f;
+  line-height: 1.1;
+}
+
+.main-title .letter-wrapper {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  color: #2c3e50;
+  transition: transform 0.3s ease;
+}
+
+.main-title .letter-wrapper:hover {
+  transform: scale(1.1);
+}
+
+/* Subtitle styles */
+.subtitle {
+  margin-top: 0;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: #34495e;
+  line-height: 1.7;
+  max-width: 680px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.subtitle .highlight {
+  font-weight: 600;
+  color: #2c3e50;
+  background: linear-gradient(120deg, rgba(52, 73, 94, 0.1) 0%, rgba(44, 62, 80, 0.1) 100%);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+.subtitle .text-line {
+  margin: 0.3rem 0;
+}
+
+.subtitle .letter-wrapper {
+  display: inline-block;
+  color: inherit;
+}
+
+/* Explore Tech Button */
+.explore-tech-btn {
+  margin-top: 2rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.explore-tech-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.explore-tech-btn:active {
+  transform: translateY(0);
+}
+
+/* Right content area */
+.right-content {
+  flex: 0 0 45%;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 0;
+  margin-top: -20rem;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .content-container {
+    flex-direction: column;
+    padding: 2rem 4%;
+  }
+
+  .left-content,
+  .right-content {
+    max-width: 100%;
+  }
+
+  .left-content {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .math-symbols {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 300px;
+    height: 200px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .homepage .corner-decoration {
+    font-size: 1.2em;
+  }
+
+  .homepage .corner-top-left.animated,
+  .homepage .corner-bottom-left.animated {
+    left: 1rem !important;
+  }
+
+  .homepage .corner-top-right.animated,
+  .homepage .corner-bottom-right.animated {
+    right: 1rem !important;
+  }
+
+  .homepage .side-decoration {
+    font-size: 1.5em;
+  }
+
+  .homepage .side-left.animated {
+    left: 1rem !important;
+  }
+
+  .homepage .side-right.animated {
+    right: 1rem !important;
+  }
+
+  .main-title .text-line {
+    margin: 0.3rem 0;
+  }
+
+  .subtitle {
+    margin-top: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .math-symbols {
+    width: 250px;
+    height: 150px;
+    font-size: 0.9em;
+  }
+
+  .homepage .corner-decoration,
+  .homepage .side-decoration {
+    display: none;
+  }
+
+  .content-container {
+    padding: 1rem 2%;
+  }
+}
+
+/* Animation effects */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* Fullscreen math symbols overlay */
+.fullscreen-math-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(200, 213, 224, 0.95);
+  animation: fadeIn 0.3s ease-in;
+}
+
+.fullscreen-math-symbols {
+  width: 98vw;
+  height: 85vh;
+  font-size: 1.0em;
+  line-height: 1.0em;
+  color: #34495e;
+  opacity: 0.8;
+  font-family: 'Times', 'Times New Roman', serif;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.fullscreen-math-symbols .letter-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  text-align: center;
+  color: #34495e;
+  transition: all 0.2s ease;
+  font-size: 0.7em;
+}
+
+.fullscreen-math-symbols .letter-wrapper.special-char {
+  color: #2c3e50;
+  font-weight: 600;
+  transform: scale(1.2);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mobile responsive for fullscreen math */
+@media (max-width: 768px) {
+  .fullscreen-math-symbols {
+    font-size: 1.8em;
+    width: 90vw;
+    height: 50vh;
+  }
+
+  .fullscreen-math-symbols .letter-wrapper {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fullscreen-math-symbols {
+    font-size: 1.4em;
+  }
+
+  .fullscreen-math-symbols .letter-wrapper {
+    width: 20px;
+    height: 20px;
+  }
+}
