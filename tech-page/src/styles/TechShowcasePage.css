@@ -125,16 +125,42 @@
 .skw-page__heading {
   margin-bottom: 15px;
   text-transform: uppercase;
-  font-size: 25px;
   text-align: center;
   font-weight: 600;
 }
 
+.title-line-1 {
+  font-size: 55px;
+  font-weight: 800;
+  margin-bottom: 5px;
+  letter-spacing: 3px;
+}
+
+.title-line-2 {
+  font-size: 35px;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
 .skw-page__description {
-  font-size: 18px;
-  text-align: center;
-  line-height: 1.5;
-  margin-bottom: 15px;
+  font-size: 22px;
+  text-align: left;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  transform: skewX(-10deg);
+  display: block;
+  width: 100%;
+  letter-spacing: 0.8px;
+  word-spacing: 2px;
+}
+
+.skw-page__description:first-of-type {
+  margin-left: -80px;
+  margin-bottom: 30px;
+}
+
+.skw-page__description:last-of-type {
+  margin-left: -100px;
 }
 
 .skw-page__link {
@@ -151,15 +177,15 @@
   color: white;
   padding: 0;
   font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', "Chakra Petch", sans-serif;
-  font-size: 0.625rem;
+  font-size: 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   position: relative;
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 2px;
   font-weight: 500;
-  height: 2.25rem;
-  width: 80px;
+  height: 3.5rem;
+  width: 140px;
   margin: 20px auto 0;
   pointer-events: auto;
   transform: skewX(calc(-1 * var(--skew-deg)));
@@ -223,6 +249,34 @@
 }
 
 .vline {
+  pointer-events: none;
+}
+
+.vline:before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  transform: translateX(-1px) translateY(1px);
+  border-bottom: 1px solid #fff;
+  border-left: 1px solid #fff;
+  transition: all 0.25s ease-in-out;
+  pointer-events: none;
+}
+
+.vline:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 4px;
+  height: 4px;
+  transform: translateX(1px) translateY(1px);
+  border-bottom: 1px solid #fff;
+  border-right: 1px solid #fff;
+  transition: all 0.25s ease-in-out;
   pointer-events: none;
 }
 
@@ -339,15 +393,13 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* 底部导航条 - CodePen风格按钮 */
+/* 左侧底部导航条 - 简化样式 */
 .category-navigation {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
+  left: 40px;
+  bottom: 40px;
   background: transparent;
   z-index: 100; /* 确保导航栏在最上层 */
-  padding: 30px 0 20px 0;
   font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', "Chakra Petch", -apple-system, BlinkMacSystemFont, sans-serif;
   pointer-events: none;
 }
@@ -359,129 +411,63 @@
 }
 
 .category-nav-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 40px;
-  text-align: center;
+  text-align: left;
 }
 
 .category-buttons {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
+  flex-direction: row;
+  gap: 20px;
   align-items: center;
 }
 
-/* CodePen风格导航按钮 */
+/* 简化导航按钮 */
 .nav-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
   background: transparent;
-  color: white;
-  padding: 0;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 8px 0;
   font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', "Chakra Petch", -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.625rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  position: relative;
+  font-size: 0.75rem;
+  border: none;
   cursor: pointer;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  font-weight: 500;
-  height: 2.25rem;
-  transition: all 0.25s ease-in-out;
+  letter-spacing: 1px;
+  font-weight: 400;
+  transition: all 0.3s ease;
+  position: relative;
+  text-align: left;
 }
 
-.nav-btn:before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 4px;
-  transform: translateX(-1px) translateY(-1px);
-  border-top: 1px solid #fff;
-  border-left: 1px solid #fff;
-  transition: all 0.25s ease-in-out;
+.nav-btn:hover {
+  color: white;
 }
 
 .nav-btn:after {
   content: "";
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 4px;
-  height: 4px;
-  transform: translateX(1px) translateY(-1px);
-  border-top: 1px solid #fff;
-  border-right: 1px solid #fff;
-  transition: all 0.25s ease-in-out;
-}
-
-.nav-btn:hover:before {
-  width: 100%;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: white;
+  transition: width 0.3s ease;
 }
 
 .nav-btn:hover:after {
-  height: 100%;
-}
-
-.nav-btn:hover .vline:before {
-  height: 100%;
-}
-
-.nav-btn:hover .vline:after {
   width: 100%;
 }
 
-.nav-btn:hover {
-  animation: blink 0.1s ease-in-out 3;
-}
-
 .nav-btn .text {
-  padding: 0 0.75rem;
-}
-
-.vline:before {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 4px;
-  height: 4px;
-  transform: translateX(-1px) translateY(1px);
-  border-bottom: 1px solid #fff;
-  border-left: 1px solid #fff;
-  transition: all 0.25s ease-in-out;
-  pointer-events: none;
-}
-
-.vline:after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 4px;
-  height: 4px;
-  transform: translateX(1px) translateY(1px);
-  border-bottom: 1px solid #fff;
-  border-right: 1px solid #fff;
-  transition: all 0.25s ease-in-out;
-  pointer-events: none;
+  padding: 0;
 }
 
 .nav-btn.active {
   color: #03f4d3;
-  border-color: rgba(3, 244, 211, 0.5);
 }
 
-.nav-btn.active:before,
-.nav-btn.active:after,
-.nav-btn.active .vline:before,
-.nav-btn.active .vline:after {
-  border-color: #03f4d3;
+.nav-btn.active:after {
+  width: 100%;
+  background: #03f4d3;
 }
 
 @keyframes blink {
@@ -728,6 +714,16 @@
 .skw-page-2 .skw-page__half--right .tech-button-right {
   border-color: #ffffff !important;
   color: #ffffff !important;
+}
+
+.skw-page-2 .skw-page__half--right .tech-button-right:before,
+.skw-page-2 .skw-page__half--right .tech-button-right:after {
+  border-color: #ffffff !important;
+}
+
+.skw-page-2 .skw-page__half--right .tech-button-right .vline:before,
+.skw-page-2 .skw-page__half--right .tech-button-right .vline:after {
+  border-color: #ffffff !important;
 }
 
 /* Responsive adjustments */

@@ -223,7 +223,10 @@ const TechShowcasePage: React.FC = () => {
             <div className="skw-page__half skw-page__half--left">
               <div className="skw-page__skewed">
                 <div className="skw-page__content">
-                  <h2 className="skw-page__heading">HPH纳米破碎·动态灭菌</h2>
+                  <h2 className="skw-page__heading">
+                    <div className="title-line-1">HPH</div>
+                    <div className="title-line-2">纳米破碎·动态灭菌</div>
+                  </h2>
                   <button className="tech-button" onClick={() => navigate('/video/hph')}>
                     <span className="vline"></span>
                     <span className="text">Video</span>
@@ -234,17 +237,17 @@ const TechShowcasePage: React.FC = () => {
             <div className="skw-page__half skw-page__half--right">
               <div className="skw-page__skewed">
                 <div className="skw-page__content">
-                  <p className="skw-page__description">
-                    高压均质技术用300-400 MPa超高压进行瞬时。
+                <p className="skw-page__description">
+                  超高压纳米破碎技术利用300-400MPa超高压质阀
                     <br />
-                    过程化，首先液料主要变体进行碰撞破碎与均质，
+                    通过空化、剪切与撞击实现纳米级破碎与灭菌。
                   </p>
                   <p className="skw-page__description">
-                    有序正定点于果汁、化菱品、保健等等各。
+                  可广泛应用于果汁、化妆品、制药等领域,
                     <br />
-                    在高温高下可破坏养分的，累升产品简单性质与微敏，
+                    低温条件下保留营养成分，提升产品稳定性与吸收率，
                     <br />
-                    具备战品，直接比手工式，支计多行至应用精精化山品要求
+                    具备高效、连续化生产优势，支持多行业物料精细化处理需求
                   </p>
                   <button className="tech-button-right" onClick={() => navigate('/tech/hph')}>
                     <span className="vline"></span>
@@ -287,7 +290,10 @@ const TechShowcasePage: React.FC = () => {
             <div className="skw-page__half skw-page__half--left">
               <div className="skw-page__skewed">
                 <div className="skw-page__content">
-                  <h2 className="skw-page__heading">PEF超冰温·脉冲电场保鲜</h2>
+                  <h2 className="skw-page__heading">
+                    <div className="title-line-1">PEF</div>
+                    <div className="title-line-2">超冰温·脉冲电场保鲜</div>
+                  </h2>
                   <button className="tech-button" onClick={() => navigate('/video/pef')}>
                     <span className="vline"></span>
                     <span className="text">Video</span>
@@ -299,16 +305,16 @@ const TechShowcasePage: React.FC = () => {
               <div className="skw-page__skewed">
                 <div className="skw-page__content">
                   <p className="skw-page__description">
-                    超冰温保鲜技术采用300-400 MPa超高压进行瞬时。
+                  超高压纳米破碎技术利用300-400MPa超高压质阀
                     <br />
-                    过程化，首开时间主要变体进行防腐保鲜与冷量。
+                    通过空化、剪切与撞击实现纳米级破碎与灭菌。
                   </p>
                   <p className="skw-page__description">
-                    有序正定点于果汁、化菱品、保健等等各。
+                  可广泛应用于果汁、化妆品、制药等领域,
                     <br />
-                    在高温高下可破坏养分的，累升产品简单性质与微敏，
+                    低温条件下保留营养成分，提升产品稳定性与吸收率，
                     <br />
-                    具备战品，直接比手工式，支计多行至应用精精化山品要求
+                    具备高效、连续化生产优势，支持多行业物料精细化处理需求
                   </p>
                   <button className="tech-button-right" onClick={() => navigate('/tech/pef')}>
                     <span className="vline"></span>
@@ -353,7 +359,6 @@ const TechShowcasePage: React.FC = () => {
                 className={`nav-btn ${!hphShowCategory ? 'active' : ''}`}
                 onClick={handleMainPageClick}
               >
-                <span className="vline"></span>
                 <span className="text">The Mine</span>
               </button>
 
@@ -364,7 +369,6 @@ const TechShowcasePage: React.FC = () => {
                   className={`nav-btn ${hphSelectedCategory?.id === category.id ? 'active' : ''}`}
                   onClick={() => handleCategoryClick(category, 'hph')}
                 >
-                  <span className="vline"></span>
                   <span className="text">{category.title}</span>
                 </button>
               ))}
@@ -382,7 +386,6 @@ const TechShowcasePage: React.FC = () => {
                 className={`nav-btn ${!pefShowCategory ? 'active' : ''}`}
                 onClick={handleMainPageClick}
               >
-                <span className="vline"></span>
                 <span className="text">The Mine</span>
               </button>
 
@@ -393,7 +396,6 @@ const TechShowcasePage: React.FC = () => {
                   className={`nav-btn ${pefSelectedCategory?.id === category.id ? 'active' : ''}`}
                   onClick={() => handleCategoryClick(category, 'pef')}
                 >
-                  <span className="vline"></span>
                   <span className="text">{category.title}</span>
                 </button>
               ))}
