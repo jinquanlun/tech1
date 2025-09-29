@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/TechShowcasePage.css';
 
@@ -138,6 +138,194 @@ const TechShowcasePage: React.FC = () => {
   const [pefShowCategory, setPefShowCategory] = useState(false);
 
   const animTime = 1000;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // 粒子动画相关
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationId: number;
+    let particles: any[] = [];
+    let onMobile = window.innerWidth < 768;
+
+    // 设置canvas尺寸
+    const resizeCanvas = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      canvas.width = w;
+      canvas.height = h;
+      // 先不缩放，避免渲染问题
+    };
+
+    resizeCanvas();
+
+    // 变量 - 平衡视觉效果和性能
+    let particleNum = onMobile ? Math.floor(window.innerWidth / 120) : Math.floor(window.innerWidth / 60);
+    if (particleNum < (onMobile ? 12 : 25)) particleNum = onMobile ? 12 : 25;
+
+    let minDist = window.innerWidth / 6; // 调整连接距离
+    if (minDist < 180) minDist = 180;
+    else if (minDist > 250) minDist = 250;
+
+    // 移除未使用的鼠标事件变量
+
+    // 粒子类
+    class Particle {
+      x: number;
+      y: number;
+      vy: number;
+      radius: number;
+
+      constructor(index: number) {
+        // 更随机的分布，而不是严格按水平排列
+        this.x = (index * (window.innerWidth / particleNum)) + (Math.random() - 0.5) * 100;
+        this.y = Math.random() * window.innerHeight;
+        this.vy = (Math.random() * -1) / 3;
+        this.radius = 2 + Math.random() * 1.5; // 随机大小的粒子
+      }
+
+      draw() {
+        if (!ctx) return;
+        // 增强粒子可见度
+        ctx.fillStyle = "rgba(255,255,255,0.95)"; // 更明亮的粒子
+        ctx.beginPath();
+        ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI * 2, false);
+        ctx.fill();
+        ctx.closePath();
+
+        // 添加一个更小的亮核心
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(Math.round(this.x), Math.round(this.y), this.radius * 0.6, 0, Math.PI * 2, false);
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+
+    // 初始化粒子
+    const initParticles = () => {
+      particles = [];
+      for (let i = 0; i < particleNum; i++) {
+        particles.push(new Particle(i));
+      }
+    };
+
+    initParticles();
+
+    // 绘制背景颜色
+    const paintCanvas = () => {
+      if (!ctx) return;
+      // 根据当前页面设置适当的背景色
+      const bgColor = focusedSection === 'hph' ? "rgba(10, 10, 10, 0.3)" : "rgba(26, 29, 36, 0.3)";
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    };
+
+    // 粒子间距离连线
+    const distance = (p1: Particle, p2: Particle) => {
+      if (!ctx) return;
+      const dx = p1.x - p2.x;
+      const dy = p1.y - p2.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist <= minDist) {
+        ctx.beginPath();
+        // 增强连线可见度
+        const distRatio = 1 - dist / minDist;
+        const opacity = 0.8 * distRatio; // 提高基础透明度
+        const lineWidth = Math.max(0.8, 1.5 * distRatio); // 动态线宽
+        ctx.strokeStyle = `rgba(255,255,255,${opacity})`;
+        ctx.lineWidth = lineWidth;
+        ctx.moveTo(Math.round(p1.x), Math.round(p1.y));
+        ctx.lineTo(Math.round(p2.x), Math.round(p2.y));
+        ctx.stroke();
+        ctx.closePath();
+      }
+    };
+
+    // 更新粒子位置 - 性能优化
+    const update = () => {
+      const amplitude = onMobile ? window.innerWidth / 25 : window.innerWidth / 18; // 减少振幅计算
+      let theta = Date.now() * 0.0008; // 稍微减慢动画速度
+      const dx = (Math.PI * 2) / particleNum;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        if (!onMobile) {
+          // 桌面端多层次运动，覆盖整个屏幕高度
+          const waveOffset = i * dx;
+          const speedVariation = 1 + (i % 3) * 0.2; // 减少速度变化，提升性能
+
+          if (i % 3 === 0) {
+            // 上半部分运动
+            p.y = window.innerHeight * 0.3 + Math.sin(theta * speedVariation + waveOffset) * amplitude;
+          } else if (i % 3 === 1) {
+            // 中间部分运动
+            p.y = window.innerHeight * 0.5 + Math.cos(theta * speedVariation + waveOffset) * amplitude * 0.8;
+          } else {
+            // 下半部分运动
+            p.y = window.innerHeight * 0.7 + Math.sin(theta * speedVariation + waveOffset + Math.PI/3) * amplitude * 0.6;
+          }
+        } else {
+          // 移动端简单运动
+          p.y += p.vy;
+          if (p.y > window.innerHeight || p.y < 0) {
+            p.vy = -p.vy;
+          }
+        }
+
+        // 边界检查
+        if (p.x + p.radius > window.innerWidth) p.x = p.radius;
+        else if (p.x - p.radius < 0) p.x = window.innerWidth - p.radius;
+
+        if (p.y + p.radius > window.innerHeight) p.y = p.radius;
+        else if (p.y - p.radius < 0) p.y = window.innerHeight - p.radius;
+
+        // 检查与其他粒子的距离
+        for (let j = i + 1; j < particles.length; j++) {
+          distance(p, particles[j]);
+        }
+      }
+    };
+
+    // 主绘制循环
+    const draw = () => {
+      paintCanvas();
+      particles.forEach(p => p.draw());
+      update();
+      animationId = requestAnimationFrame(draw);
+    };
+
+    // 移除鼠标事件处理，简化性能
+
+    const handleResize = () => {
+      onMobile = window.innerWidth < 768;
+      resizeCanvas();
+      particleNum = onMobile ? Math.floor(window.innerWidth / 120) : Math.floor(window.innerWidth / 60);
+      if (particleNum < (onMobile ? 12 : 25)) particleNum = onMobile ? 12 : 25;
+      minDist = window.innerWidth / 6;
+      if (minDist < 180) minDist = 180;
+      else if (minDist > 250) minDist = 250;
+      initParticles();
+    };
+
+    // 添加事件监听
+    window.addEventListener('resize', handleResize);
+
+    // 开始动画
+    draw();
+
+    // 清理函数
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [focusedSection]);
 
   const switchFocus = (section: 'hph' | 'pef') => {
     // 现在允许在任何时候切换聚焦，因为区域独立
@@ -197,9 +385,9 @@ const TechShowcasePage: React.FC = () => {
       // 如果正在显示分类详情，禁用键盘导航
       if (scrolling || hphShowCategory || pefShowCategory) return;
 
-      if (e.which === 38) { // Arrow Up
+      if (e.key === 'ArrowUp') { // Arrow Up
         navigateUp();
-      } else if (e.which === 40) { // Arrow Down
+      } else if (e.key === 'ArrowDown') { // Arrow Down
         navigateDown();
       }
     };
@@ -215,6 +403,11 @@ const TechShowcasePage: React.FC = () => {
 
   return (
     <div className="skw-pages">
+      {/* Canvas粒子动画背景 */}
+      <canvas
+        ref={canvasRef}
+        className="particle-canvas"
+      />
       {/* HPH Section - 第一页 */}
       <div className={`skw-page skw-page-1 ${focusedSection === 'hph' ? 'active' : ''}`}>
         {!hphShowCategory ? (
