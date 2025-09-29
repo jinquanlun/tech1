@@ -181,11 +181,11 @@ const TechShowcasePage: React.FC = () => {
       radius: number;
 
       constructor(index: number) {
-        // 更随机的分布，而不是严格按水平排列
-        this.x = (index * (window.innerWidth / particleNum)) + (Math.random() - 0.5) * 100;
+        // 按照原始代码的分布方式
+        this.x = index * (window.innerWidth / particleNum);
         this.y = Math.random() * window.innerHeight;
         this.vy = (Math.random() * -1) / 3;
-        this.radius = 2 + Math.random() * 1.5; // 随机大小的粒子
+        this.radius = 1.5; // 固定半径，如原始代码
       }
 
       draw() {
@@ -422,7 +422,7 @@ const TechShowcasePage: React.FC = () => {
                   </h2>
                   <button className="tech-button" onClick={() => navigate('/video/hph')}>
                     <span className="vline"></span>
-                    <span className="text">Video</span>
+                    <span className="text">视 频 演 示</span>
                   </button>
                 </div>
               </div>
@@ -444,7 +444,7 @@ const TechShowcasePage: React.FC = () => {
                   </p>
                   <button className="tech-button-right" onClick={() => navigate('/tech/hph')}>
                     <span className="vline"></span>
-                    <span className="text">Detail</span>
+                    <span className="text">查 看 详 情</span>
                   </button>
                 </div>
               </div>
@@ -489,7 +489,7 @@ const TechShowcasePage: React.FC = () => {
                   </h2>
                   <button className="tech-button" onClick={() => navigate('/video/pef')}>
                     <span className="vline"></span>
-                    <span className="text">Video</span>
+                    <span className="text">视 频 演 示</span>
                   </button>
                 </div>
               </div>
@@ -513,7 +513,7 @@ const TechShowcasePage: React.FC = () => {
                   </p>
                   <button className="tech-button-right" onClick={() => navigate('/tech/pef')}>
                     <span className="vline"></span>
-                    <span className="text">Detail</span>
+                    <span className="text"> 查 看 详 情</span>
                   </button>
                 </div>
               </div>

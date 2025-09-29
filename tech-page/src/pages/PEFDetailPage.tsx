@@ -97,6 +97,137 @@ function PEFDetailPage() {
           </div>
         </section>
 
+
+        {/* Technical Validation */}
+        <section className="content-section">
+          <div className="section-header">
+            <h2>技术验证与测试</h2>
+            <div className="section-line"></div>
+          </div>
+
+          <div className="validation-content">
+            <div className="validation-item">
+              <h3>VB-N/PH/色度测试：鲜到鲜技术，15天仍保持一级鲜</h3>
+              <p>新鲜羊肉和牛肉在贮藏过程中，不同工况下对于羊肉和牛肉的挥发性盐基氮、菌落总数和色泽的影响。</p>
+              <div className="test-charts">
+                <img src="/images/pef-tech/vbn-test.png" alt="VB-N/PH/色度测试图表" />
+              </div>
+            </div>
+
+            <div className="validation-item">
+              <h3>15天保鲜效果实物对比</h3>
+              <p>-4℃真空组的羊肉和所有牛肉样品在贮藏期结束后保存软鲜态，结论为一级鲜肉标准，表明冰温保鲜处理的牛羊肉贮藏15d也能保持食用品质。</p>
+              <div className="comparison-images">
+                <div className="comparison-group">
+                  <h4>-4℃真空牛肉</h4>
+                  <img src="/images/pef-tech/beef-comparison.png" alt="牛肉15天保鲜效果对比" />
+                </div>
+                <div className="comparison-group">
+                  <h4>-4℃真空羊肉</h4>
+                  <img src="/images/pef-tech/lamb-comparison.png" alt="羊肉15天保鲜效果对比" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Competitive Comparison */}
+        <section className="content-section">
+          <div className="section-header">
+            <h2>竞品技术对比</h2>
+            <div className="section-line"></div>
+          </div>
+
+          <div className="comparison-content">
+            <div className="comparison-item">
+              <h3>技术方案差异对比</h3>
+              <div className="tech-comparison-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>维度</th>
+                      <th>恒磁养鲜</th>
+                      <th>3代微晶（双层微晶）</th>
+                      <th>2代微晶/AI抑霜冻</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>送风方式</td>
+                      <td>抽屉环绕风循环</td>
+                      <td>后部吹风</td>
+                      <td>顶部吹风</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="airflow-diagrams">
+                <img src="/images/pef-tech/airflow-diagram.png" alt="送风方式对比图" />
+              </div>
+            </div>
+
+
+            <div className="comparison-item">
+              <h3>鲜到鲜VS海尔恒磁VS美的微晶：技术对比详表</h3>
+              <div className="detailed-comparison">
+                <img src="/images/pef-tech/tech-comparison.png" alt="详细技术对比表" />
+              </div>
+
+              <div className="comparison-summary">
+                <div className="summary-section">
+                  <h4>对标结果分析：</h4>
+                  <ul>
+                    <li>竞品测试标准更接近实际用户场景，我司测试标准要求80%负载为极端状态。竞品标准有参考价值。</li>
+                    <li>采用拉温段-回温段交替控温逻辑，在降温速率优势明显，但拉温段温度低，易造成局部食材过冻；海尔恒磁采用恒温控温逻辑，温度整体控制较均匀且稳定。</li>
+                  </ul>
+                </div>
+
+                <div className="summary-section">
+                  <h4>改善措施：</h4>
+                  <ul>
+                    <li>重新定义微晶技术要求（温度波动和均匀性）</li>
+                    <li>修订微晶保鲜测试方法（负载量和食材种类）</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Technical Advantages */}
+        <section className="content-section">
+          <div className="section-header">
+            <h2>技术优势总结</h2>
+            <div className="section-line"></div>
+          </div>
+
+          <div className="advantages-summary">
+            <div className="advantage-highlight">
+              <h3>鲜到鲜技术核心价值</h3>
+              <p>鲜到鲜技术才能实现15天保持一级鲜，无需改变产品形态，实现真正的一级鲜保存。</p>
+            </div>
+
+            <div className="key-advantages">
+              <div className="advantage-card">
+                <h4>15天一级鲜</h4>
+                <p>突破行业极限，实现肉类、鱼、水果等食材长达15天的"一级鲜"保鲜周期</p>
+              </div>
+              <div className="advantage-card">
+                <h4>纳米微晶技术</h4>
+                <p>独创纳米微晶保鲜技术，有效抑制冰晶生成，保持食材细胞完整性</p>
+              </div>
+              <div className="advantage-card">
+                <h4>冰温精准控制</h4>
+                <p>精准的冰温控制系统，确保食材在最佳保鲜温度区间内存储</p>
+              </div>
+              <div className="advantage-card">
+                <h4>革命性常温配送</h4>
+                <p>创新"工厂HPH处理 + 常温运输 + 终端智能冰温柜"新模式</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Applications */}
         <section className="content-section">
           <div className="section-header">
@@ -158,22 +289,22 @@ function PEFDetailPage() {
             <div className="team-member">
               <h4>季俊生</h4>
               <span className="title">CEO</span>
-              <p>理工博士，家电行业近30年经验，曾任世界500强企业高管并成功创办独角兽企业</p>
+              <p>理工博士、高级产品经理、EMBA，家电从业近30年。在世界500强企业担任经营体、创新研究院负责人等职；并自主创业行业首家"3D曲面玻璃"等独角兽企业2家。国内外专利900多项，丰富的成熟企业管理和初创公司开拓经历，具有极强的市场开发能力，对技术创新转化敏锐度高。</p>
             </div>
             <div className="team-member">
               <h4>余铭</h4>
               <span className="title">首席科学家</span>
-              <p>清华大学食品科学与工程领域教授、博导，专注于食品低温加工及冷链保鲜技术</p>
+              <p>低温加工与保鲜技术首席，清华大学食品科学与工程领域教授、博导，广东省食品低温加工工程技术中心主任，专注于食品低温加工及冷链保鲜技术的研发与应用。研发冻眠保鲜技术，主导设计食品低温加工新装备，技术成果转化4项，获国内外专利10件（含美国专利2件）。</p>
             </div>
             <div className="team-member">
               <h4>陈昭民</h4>
               <span className="title">CTO</span>
-              <p>中科院博士与AI算法专家，行业首创"益生菌干式熟成技术"创始人</p>
+              <p>中科院博士、高工、智能烹饪首席与AI算法专家。中科院计算机所研究员，行业首创"益生菌干式熟成技术"创始人，致力于智能烹饪、高端食材深加工、口味研究。有智能家电、食品加工、智能烹饪及机械装备跨行业整合经验，已创立多家技术创新型企业。</p>
             </div>
             <div className="team-member">
               <h4>方祥</h4>
               <span className="title">战略顾问</span>
-              <p>华南农业大学博士后教授、食品学院院长，生物与微生物工程领域权威专家</p>
+              <p>国际多芬生物与微生物工程专家。华南农业大学博士后教授、博导，食品学院院长，生物工程专业主任，微生物发酵工程及相关领域的学科带头人。发明专利24项，国内外论文80多篇，为公司战略发展高级顾问。</p>
             </div>
           </div>
         </section>
@@ -186,16 +317,16 @@ function PEFDetailPage() {
           </div>
           <div className="values-content">
             <div className="value-item">
-              <h4>愿景</h4>
-              <p>重定食材保鲜温场标准，为健康生活保持自然</p>
+              <h4>鎏鲜愿景</h4>
+              <p>重定食材保鲜温场标准，为健康生活保持自然！</p>
             </div>
             <div className="value-item">
-              <h4>使命</h4>
-              <p>以鲜为尺，用科技锁住时间，让每一口食材如初摘般鲜活</p>
+              <h4>鎏鲜使命</h4>
+              <p>以鲜为尺用科技锁住时间，让每一口食材如初摘般鲜活！</p>
             </div>
             <div className="value-item">
-              <h4>价值观</h4>
-              <p>产业赋能，以技术驱动生态链价值创新</p>
+              <h4>鎏鲜价值观</h4>
+              <p>产业赋能，以技术驱动生态链价值创新！</p>
             </div>
           </div>
           <div className="company-footer">
