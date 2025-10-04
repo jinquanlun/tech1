@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import '../styles/DetailPage.css';
+import '../styles/pages/DetailPage.css';
 
 function HPHDetailPage() {
   const navigate = useNavigate();

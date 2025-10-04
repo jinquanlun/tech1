@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import HomePage from './HomePage';
 import TechShowcasePage from './TechShowcasePage';
 import InfiniteHero from '../components/ui/infinite-hero';
-import '../styles/MainPage.css';
+import '../styles/pages/MainPage.css';
 
 const MainPage: React.FC = () => {
   const location = useLocation();
