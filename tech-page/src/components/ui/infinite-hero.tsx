@@ -1,309 +1,251 @@
-import { useGSAP } from "@gsap/react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { gsap } from "gsap";
-import { useMemo, useRef, useEffect, useState } from "react";
-import * as THREE from "three";
 
-interface ShaderPlaneProps {
-    vertexShader: string;
-    fragmentShader: string;
-    uniforms: { [key: string]: { value: unknown } };
-}
+import { useEffect, useRef } from 'react';
+import * as THREE from 'three';
 
-function ShaderPlane({
-    vertexShader,
-    fragmentShader,
-    uniforms,
-}: ShaderPlaneProps) {
-    const meshRef = useRef<THREE.Mesh>(null);
-    const { size, viewport } = useThree();
+const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize = 256, speed = 0.5 }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-    useFrame((state) => {
-        if (meshRef.current) {
-            const material = meshRef.current.material as THREE.ShaderMaterial;
-            material.uniforms.u_time.value = state.clock.elapsedTime * 0.5;
-            material.uniforms.u_resolution.value.set(size.width, size.height, 1.0);
-        }
-    });
+  useEffect(() => {
+    // Plane class
+    class Plane {
+      uniforms: any;
+      mesh: THREE.Mesh;
+      time: number;
 
-    return (
-        <mesh ref={meshRef} scale={[viewport.width, viewport.height, 1]}>
-            <planeGeometry args={[1, 1]} />
-            <shaderMaterial
-                vertexShader={vertexShader}
-                fragmentShader={fragmentShader}
-                uniforms={uniforms}
-                side={THREE.DoubleSide}
-                depthTest={false}
-                depthWrite={false}
-            />
-        </mesh>
-    );
-}
+      constructor() {
+        this.uniforms = {
+          time: { type: 'f', value: 0 },
+        };
+        this.mesh = this.createMesh();
+        this.time = speed;
+      }
 
-interface ShaderBackgroundProps {
-    vertexShader?: string;
-    fragmentShader?: string;
-    uniforms?: { [key: string]: { value: unknown } };
-    className?: string;
-}
+      createMesh() {
+        return new THREE.Mesh(
+          new THREE.PlaneGeometry(planeSize, planeSize, planeSize, planeSize),
+          new THREE.RawShaderMaterial({
+            uniforms: this.uniforms,
+            vertexShader: `
+              #define GLSLIFY 1
+              attribute vec3 position;
+              uniform mat4 projectionMatrix;
+              uniform mat4 modelViewMatrix;
+              uniform float time;
+              varying vec3 vPosition;
 
-function ShaderBackground({
-    vertexShader = `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              mat4 rotateMatrixX(float radian) {
+                return mat4(
+                  1.0, 0.0, 0.0, 0.0,
+                  0.0, cos(radian), -sin(radian), 0.0,
+                  0.0, sin(radian), cos(radian), 0.0,
+                  0.0, 0.0, 0.0, 1.0
+                );
+              }
+
+              vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+              vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+              vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+              vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+              vec3 fade(vec3 t) { return t*t*t*(t*(t*6.0-15.0)+10.0); }
+
+              float cnoise(vec3 P) {
+                vec3 Pi0 = floor(P);
+                vec3 Pi1 = Pi0 + vec3(1.0);
+                Pi0 = mod289(Pi0);
+                Pi1 = mod289(Pi1);
+                vec3 Pf0 = fract(P);
+                vec3 Pf1 = Pf0 - vec3(1.0);
+                vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
+                vec4 iy = vec4(Pi0.yy, Pi1.yy);
+                vec4 iz0 = Pi0.zzzz;
+                vec4 iz1 = Pi1.zzzz;
+
+                vec4 ixy = permute(permute(ix) + iy);
+                vec4 ixy0 = permute(ixy + iz0);
+                vec4 ixy1 = permute(ixy + iz1);
+
+                vec4 gx0 = ixy0 * (1.0 / 7.0);
+                vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
+                gx0 = fract(gx0);
+                vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
+                vec4 sz0 = step(gz0, vec4(0.0));
+                gx0 -= sz0 * (step(0.0, gx0) - 0.5);
+                gy0 -= sz0 * (step(0.0, gy0) - 0.5);
+
+                vec4 gx1 = ixy1 * (1.0 / 7.0);
+                vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
+                gx1 = fract(gx1);
+                vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
+                vec4 sz1 = step(gz1, vec4(0.0));
+                gx1 -= sz1 * (step(0.0, gx1) - 0.5);
+                gy1 -= sz1 * (step(0.0, gy1) - 0.5);
+
+                vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
+                vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
+                vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
+                vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
+                vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
+                vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
+                vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
+                vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
+
+                vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
+                g000 *= norm0.x;
+                g010 *= norm0.y;
+                g100 *= norm0.z;
+                g110 *= norm0.w;
+                vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
+                g001 *= norm1.x;
+                g011 *= norm1.y;
+                g101 *= norm1.z;
+                g111 *= norm1.w;
+
+                float n000 = dot(g000, Pf0);
+                float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
+                float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
+                float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
+                float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
+                float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
+                float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
+                float n111 = dot(g111, Pf1);
+
+                vec3 fade_xyz = fade(Pf0);
+                vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
+                vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
+                float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
+                return 2.2 * n_xyz;
+              }
+
+              void main(void) {
+                vec3 updatePosition = (rotateMatrixX(radians(90.0)) * vec4(position, 1.0)).xyz;
+                float sin1 = sin(radians(updatePosition.x / 128.0 * 90.0));
+                vec3 noisePosition = updatePosition + vec3(0.0, 0.0, time * -30.0);
+                float noise1 = cnoise(noisePosition * 0.08);
+                float noise2 = cnoise(noisePosition * 0.06);
+                float noise3 = cnoise(noisePosition * 0.4);
+                vec3 lastPosition = updatePosition + vec3(0.0,
+                  noise1 * sin1 * 8.0
+                  + noise2 * sin1 * 8.0
+                  + noise3 * (abs(sin1) * 2.0 + 0.5)
+                  + pow(sin1, 2.0) * 40.0, 0.0);
+
+                vPosition = lastPosition;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(lastPosition, 1.0);
+              }
+            `,
+            fragmentShader: `
+              precision highp float;
+              #define GLSLIFY 1
+              varying vec3 vPosition;
+
+              void main(void) {
+                float opacity = (96.0 - length(vPosition)) / 256.0 * 0.6;
+                vec3 color = vec3(0.6);
+                gl_FragColor = vec4(color, opacity);
+              }
+            `,
+            transparent: true
+          })
+        );
+      }
+
+      render(time: number) {
+        this.uniforms.time.value += time * this.time;
+      }
     }
-  `,
-    fragmentShader = `
-    precision highp float;
 
-    varying vec2 vUv;
-    uniform float u_time;
-    uniform vec3 u_resolution;
-    uniform sampler2D iChannel0;
+    // Three.js setup
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current!, antialias: false });
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+    const clock = new THREE.Clock();
+    const plane = new Plane();
 
-    #define STEP 128
-    #define EPS .005
+    const resize = () => {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
 
-    float smin( float a, float b, float k )
-    {
-        float h = clamp( 0.5+0.5*(b-a)/k, 0.0, 1.0 );
-        return mix( b, a, h ) - k*h*(1.0-h);
-    }
+    const render = () => {
+      plane.render(clock.getDelta());
+      renderer.render(scene, camera);
+    };
 
-    const mat2 m = mat2(.8,.6,-.6,.8);
+    const renderLoop = () => {
+      render();
+      requestAnimationFrame(renderLoop);
+    };
 
-    float noise( in vec2 x )
-    {
-      return sin(1.5*x.x)*sin(1.5*x.y);
-    }
+    const init = () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x000000, 1.0); // Set solid black background
+      camera.position.set(0, 16, cameraZ);
+      camera.lookAt(new THREE.Vector3(0, 28, 0));
+      scene.add(plane.mesh);
+      window.addEventListener('resize', resize);
+      resize();
+      renderLoop();
+    };
 
-    float fbm6( vec2 p )
-    {
-        float f = 0.0;
-        f += 0.500000*(0.5+0.5*noise( p )); p = m*p*2.02;
-        f += 0.250000*(0.5+0.5*noise( p )); p = m*p*2.03;
-        f += 0.125000*(0.5+0.5*noise( p )); p = m*p*2.01;
-        f += 0.062500*(0.5+0.5*noise( p )); p = m*p*2.04;
-        //f += 0.031250*(0.5+0.5*noise( p )); p = m*p*2.01;
-        f += 0.015625*(0.5+0.5*noise( p ));
-        return f/0.96875;
-    }
+    init();
 
+    return () => {
+      window.removeEventListener('resize', resize);
+    };
+  }, [cameraZ, planeSize, speed]);
 
-    mat2 getRot(float a)
-    {
-        float sa = sin(a), ca = cos(a);
-        return mat2(ca,-sa,sa,ca);
-    }
-
-
-    vec3 _position;
-
-    float sphere(vec3 center, float radius)
-    {
-        return distance(_position,center) - radius;
-    }
-
-    float swingPlane(float height)
-    {
-        vec3 pos = _position + vec3(0.,0.,u_time * 5.5);
-        float def =  fbm6(pos.xz * .25) * 0.5;
-
-        float way = pow(abs(pos.x) * 34. ,2.5) *.0000125;
-        def *= way;
-
-        float ch = height + def;
-        return max(pos.y - ch,0.);
-    }
-
-    float map(vec3 pos)
-    {
-        _position = pos;
-
-        float dist;
-        dist = swingPlane(0.);
-
-        float sminFactor = 5.25;
-        dist = smin(dist,sphere(vec3(0.,-15.,80.),60.),sminFactor);
-        return dist;
-    }
-
-
-    vec3 getNormal(vec3 pos)
-    {
-        vec3 nor = vec3(0.);
-        vec3 vv = vec3(0.,1.,-1.)*.01;
-        nor.x = map(pos + vv.zxx) - map(pos + vv.yxx);
-        nor.y = map(pos + vv.xzx) - map(pos + vv.xyx);
-        nor.z = map(pos + vv.xxz) - map(pos + vv.xxy);
-        nor /= 2.;
-        return normalize(nor);
-    }
-
-    void mainImage( out vec4 fragColor, in vec2 fragCoord )
-    {
-      vec2 uv = (fragCoord.xy-.5*u_resolution.xy)/u_resolution.y;
-
-        vec3 rayOrigin = vec3(uv + vec2(0.,6.), -1. );
-
-        vec3 rayDir = normalize(vec3(uv , 1.));
-
-        rayDir.zy = getRot(.15) * rayDir.zy;
-
-        vec3 position = rayOrigin;
-
-
-        float curDist;
-        int nbStep = 0;
-
-        for(; nbStep < STEP;++nbStep)
-        {
-            curDist = map(position + (texture(iChannel0, position.xz) - .5).xyz * .005);
-
-            if(curDist < EPS)
-                break;
-            position += rayDir * curDist * .5;
-        }
-
-        float f;
-
-        float dist = distance(rayOrigin,position);
-        f = dist /(98.);
-        f = float(nbStep) / float(STEP);
-
-        f *= .9;
-        vec3 col = vec3(f);
-
-        fragColor = vec4(col,1.0);
-    }
-    void main() {
-      vec4 fragColor;
-      vec2 fragCoord = vUv * u_resolution.xy;
-      mainImage(fragColor, fragCoord);
-      gl_FragColor = fragColor;
-    }
-  `,
-    uniforms = {},
-    className = "w-full h-full",
-}: ShaderBackgroundProps) {
-    const shaderUniforms = useMemo(
-        () => ({
-            u_time: { value: 0 },
-            u_resolution: { value: new THREE.Vector3(1, 1, 1) },
-            ...uniforms,
-        }),
-        [uniforms],
-    );
-
-    return (
-        <div className={className} style={{ width: '100%', height: '100%' }}>
-            <Canvas
-                className={className}
-                style={{ width: '100%', height: '100%', display: 'block' }}
-                camera={{ position: [0, 0, 1], fov: 45, near: 0.1, far: 1000 }}
-                dpr={Math.min(window.devicePixelRatio, 2)}
-                gl={{
-                    preserveDrawingBuffer: false,
-                    powerPreference: "high-performance",
-                    antialias: false,
-                    alpha: false,
-                    stencil: false,
-                    depth: false
-                }}
-                frameloop="always"
-            >
-                <ShaderPlane
-                    vertexShader={vertexShader}
-                    fragmentShader={fragmentShader}
-                    uniforms={shaderUniforms}
-                />
-            </Canvas>
-        </div>
-    );
-}
+  return (
+    <div ref={containerRef} style={{ position: 'relative', width, height }}>
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          zIndex: 1
+        }}
+      />
+    </div>
+  );
+};
 
 export default function InfiniteHero() {
-    const rootRef = useRef<HTMLDivElement>(null);
-    const bgRef = useRef<HTMLDivElement>(null);
-    const h1Ref = useRef<HTMLHeadingElement>(null);
-    const pRef = useRef<HTMLParagraphElement>(null);
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    useGSAP(
-        () => {
-            if (!mounted) return;
-
-            // 简单的淡入动画，不使用SplitText
-            gsap.set(bgRef.current, { filter: "blur(28px)" });
-            gsap.set([h1Ref.current, pRef.current], {
-                opacity: 0,
-                y: 30,
-            });
-
-            const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
-            tl.to(bgRef.current, { filter: "blur(0px)", duration: 1.2 }, 0)
-                .to(h1Ref.current, {
-                    opacity: 1,
-                    y: 0,
-                    duration: 1,
-                }, 0.3)
-                .to(pRef.current, {
-                    opacity: 1,
-                    y: 0,
-                    duration: 1,
-                }, 0.6);
-        },
-        { scope: rootRef, dependencies: [mounted] },
-    );
-
     return (
-        <div
-            ref={rootRef}
-            className="relative h-screen w-full overflow-hidden bg-black text-white"
-        >
-            <div className="absolute inset-0" ref={bgRef} style={{ width: '100%', height: '100%' }}>
-                <ShaderBackground className="h-full w-full" />
+        <div className="relative h-screen w-full overflow-hidden bg-black text-white">
+            {/* 背景动画 */}
+            <div className="absolute inset-0">
+                <GLSLHills />
             </div>
 
-            <div className="pointer-events-none absolute inset-0 [background:radial-gradient(120%_80%_at_50%_50%,_transparent_40%,_black_100%)]" />
-
+            {/* 文字内容 */}
             <div className="relative z-10 flex h-screen w-full items-center justify-center px-6">
-                <div className="text-center">
-                    <h1
-                        ref={h1Ref}
+                <div className="text-center max-w-6xl">
+                    <div
                         style={{
                             color: '#ffffff',
                             fontFamily: "'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif",
-                            textShadow: '0 2px 10px rgba(255, 255, 255, 0.1)',
-                            letterSpacing: '0.02em'
+                            letterSpacing: '0.08em',
+                            lineHeight: '2.4',
+                            textShadow: '0 2px 10px rgba(255, 255, 255, 0.1)'
                         }}
-                        className="mx-auto max-w-5xl text-[clamp(1.8rem,4.5vw,3.2rem)] font-normal leading-[1.35] antialiased"
+                        className="text-[clamp(1.8rem,2.5vw,1.8rem)] font-normal antialiased"
                     >
-                        在这双核技术的协同赋能下<br />
-                        不仅可以攻克高品质短保产品全球化的多个瓶颈<br />
-                        <span style={{ color: '#e6e6e6', fontSize: '0.95em' }}>保质期 损耗与成本</span><br />
-                        同时赋予了产品和品牌全新维度的
-                    </h1>
-                    <p
-                        ref={pRef}
-                        style={{
-                            color: '#ffffff',
-                            fontFamily: "'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif",
-                            textShadow: '0 1px 5px rgba(255, 255, 255, 0.1)',
-                            letterSpacing: '0.03em'
-                        }}
-                        className="mx-auto mt-10 max-w-4xl text-[clamp(1.4rem,3.2vw,2.2rem)] font-light leading-[1.6] antialiased"
-                    >
-                        <span style={{ fontWeight: '400' }}>可能性，生命力，竞争力，和影响力</span><br />
-                        <span style={{ fontSize: '0.9em', color: '#f0f0f0' }}>为您构建起难以逾越的技术强垒</span>
-                    </p>
+                        在PRISM瓴境双核技术的协同赋能下<br />
+                        既攻克了 高品质短保产品 的多个瓶颈<br />
+                        <span style={{ letterSpacing: '0.15em' }}>保质期·损耗·成本</span><br />
+                        同时又赋予了产品和品牌全新维度的<br />
+                        <span style={{ letterSpacing: '0.15em' }}>可能性·生命力·竞争力·影响力</span><br />
+                        为您构建起难以逾越的技术壁垒
+                    </div>
                 </div>
             </div>
         </div>

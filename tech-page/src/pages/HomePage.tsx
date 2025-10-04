@@ -1,225 +1,190 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { TextShuffler } from '../utils/textShuffler';
+import * as THREE from 'three';
 import '../styles/HomePage.css';
 
-// Mathematical symbols for background decoration - Matrix-like code rain
-const MATH_SYMBOLS = [
-  '∑ ∆ π ∫ ∞ √ α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ τ υ φ χ ψ ω Α Β Γ Δ Ε Ζ Η Θ Ι Κ Λ Μ Ν Ξ Ο Π Ρ Σ Τ Υ Φ Χ Ψ Ω',
-  '÷ × ± ≠ ≤ ≥ ≈ ≡ ∝ ∴ ∵ ∈ ∉ ⊂ ⊃ ⊆ ⊇ ∩ ∪ ∧ ∨ ¬ ⊕ ⊗ ⊥ ∥ ⊔ ⊓ ⊏ ⊐ ⊑ ⊒ ⊺ ⊻ ⊼ ⊽ ⊾ ⊿ ⋀ ⋁ ⋂ ⋃ ⋄ ⋅ ⋆ ⋇',
-  '∂ ∇ ∀ ∃ ∄ ∅ ℵ ℶ ℷ ℸ ⊤ ⊥ ⊢ ⊣ ⊨ ⊩ ⊪ ⊫ ⊬ ⊭ ⊮ ⊯ ⊰ ⊱ ⊲ ⊳ ⊴ ⊵ ⊶ ⊷ ⊸ ⊹ ⊺ ⊻ ⊼ ⊽ ⊾ ⊿ ⋀ ⋁ ⋂ ⋃ ⋄ ⋅ ⋆ ⋇',
-  '≪ ≫ ≺ ≻ ≼ ≽ ≾ ≿ ⊀ ⊁ ⋖ ⋗ ⋘ ⋙ ⋚ ⋛ ⋜ ⋝ ⋞ ⋟ ⋠ ⋡ ⋢ ⋣ ⋤ ⋥ ⋦ ⋧ ⋨ ⋩ ⋪ ⋫ ⋬ ⋭ ⋮ ⋯ ⋰ ⋱ ⋲ ⋳ ⋴ ⋵ ⋶ ⋷ ⋸ ⋹ ⋺ ⋻',
-  '⌊ ⌋ ⌈ ⌉ ⟨ ⟩ ⟪ ⟫ ⟬ ⟭ ⟮ ⟯ ⁽ ⁾ ₍ ₎ ⦃ ⦄ ⦅ ⦆ ⦇ ⦈ ⦉ ⦊ ⦋ ⦌ ⦍ ⦎ ⦏ ⦐ ⦑ ⦒ ⦓ ⦔ ⦕ ⦖ ⦗ ⦘ ⦙ ⦚ ⦛ ⦜ ⦝ ⦞ ⦟ ⦠ ⦡ ⦢',
-  '∘ ∙ ∗ ⋅ ⋆ ★ ☆ ⋄ ◊ ◦ ○ ● ◯ ◉ ⊙ ⊚ ⊛ ⊜ ⊝ ⊞ ⊟ ⊠ ⊡ ⋇ ⋈ ⋉ ⋊ ⋋ ⋌ ⋍ ⋎ ⋏ ⋐ ⋑ ⋒ ⋓ ⋔ ⋕ ⋖ ⋗ ⋘ ⋙ ⋚ ⋛ ⋜ ⋝ ⋞ ⋟',
-  '↑ ↓ ← → ↔ ↕ ↖ ↗ ↘ ↙ ↚ ↛ ↜ ↝ ↞ ↟ ↠ ↡ ↢ ↣ ↤ ↥ ↦ ↧ ↨ ↩ ↪ ↫ ↬ ↭ ↮ ↯ ↰ ↱ ↲ ↳ ↴ ↵ ↶ ↷ ↸ ↹ ↺ ↻ ↼ ↽ ↾ ↿',
-  '⇐ ⇑ ⇒ ⇓ ⇔ ⇕ ⇖ ⇗ ⇘ ⇙ ⇚ ⇛ ⇜ ⇝ ⇞ ⇟ ⇠ ⇡ ⇢ ⇣ ⇤ ⇥ ⇦ ⇧ ⇨ ⇩ ⇪ ⇫ ⇬ ⇭ ⇮ ⇯ ⇰ ⇱ ⇲ ⇳ ⇴ ⇵ ⇶ ⇷ ⇸ ⇹ ⇺ ⇻ ⇼ ⇽ ⇾ ⇿',
-  '∝ ∞ ∟ ∠ ∡ ∢ ∣ ∤ ∥ ∦ ∧ ∨ ∩ ∪ ∫ ∬ ∭ ∮ ∯ ∰ ∱ ∲ ∳ ∴ ∵ ∶ ∷ ∸ ∹ ∺ ∻ ∼ ∽ ∾ ∿ ≀ ≁ ≂ ≃ ≄ ≅ ≆ ≇ ≈ ≉ ≊ ≋ ≌ ≍',
-  '℀ ℁ ℂ ℃ ℄ ℅ ℆ ℇ ℈ ℉ ℊ ℋ ℌ ℍ ℎ ℏ ℐ ℑ ℒ ℓ ℔ ℕ № ℗ ℘ ℙ ℚ ℛ ℜ ℝ ℞ ℟ ℠ ℡ ™ ℣ ℤ ℥ Ω ℧ ℨ ℩ K Å ℬ ℭ ℮ ℯ ℰ ℱ',
-  '0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z',
-  '⚀ ⚁ ⚂ ⚃ ⚄ ⚅ ⚆ ⚇ ⚈ ⚉ ⚊ ⚋ ⚌ ⚍ ⚎ ⚏ ⚐ ⚑ ⚒ ⚓ ⚔ ⚕ ⚖ ⚗ ⚘ ⚙ ⚚ ⚛ ⚜ h ⚞ ⚟ ⚠ n ⚢ ⚣ ⚤ ⚥ ⚦ ⚧ ⚨ ⚩    ⚬ ⚭ ⚮ ⚯',
-  '⊰ ⊱ ⊲ ⊳ ⊴ ⊵ ⊶ ⊷ ⊸ ⊹ ⊺ ⊻ ⊼ ⊽ ⊾ ⊿ ⋀ ⋁ ⋂ ⋃ ⋄ ⋅ ⋆ ⋇ ⋈ ⋉ ⋊ ⋋ ⋌ ⋍ ⋎ ⋏ ⋐ ⋑ ⋒ ⋓ ⋔ ⋕ ⋖ ⋗ ⋘ ⋙ ⋚ ⋛ ⋜ ⋝ ⋞ ⋟',
-  '⌀ ⌁ ⌂ ⌃ ⌄ ⌅ ⌆ ⌇ ⌈ ⌉ ⌊ ⌋ ⌌ ⌍ ⌎ ⌏ ⌐ ⌑ ⌒ ⌓ ⌔ ⌕ ⌖ ⌗ ⌘ ⌙ j  ⌜ ⌝ ⌞ ⌟ ⌠ ⌡ ⌢ ⌣ ⌤ ⌥ ⌦ ⌧ ⌨ ⟨ ⟩ ⟪ ⟫ ⟬ ⟭ ⟮ ⟯',
-  '⟰ ⟱ ⟲ ⟳ ⟴ ⟵ ⟶ ⟷ ⟸ ⟹ ⟺ ⟻ ⟼ ⟽ ⟾ ⟿ ⤀ ⤁ ⤂ ⤃ ⤄ ⤅ ⤆ ⤇ ⤈ ⤉ ⤊ ⤋ ⤌ ⤍ ⤎ ⤏ ⤐ ⤑ ⤒ ⤓ ⤔ ⤕ ⤖ ⤗ ⤘ ⤙ ⤚ ⤛ ⤜ ⤝ ⤞ ⤟',
-  '∽ ∾ ∿ ≀ ≁ ≂ ≃ ≄ ≅ ≆ ≇ ≈ ≉ ≊ ≋ ≌ ≍ ≎ ≏ ≐ ≑ ≒ ≓ ≔ ≕ ≖ ≗ ≘ ≙ ≚ ≛ ≜ ≝ ≞ ≟ ≠ ≡ ≢ ≣ ≤ ≥ ≦ ≧ ≨ ≩ ≪ ≫ ≬ ≭ ≮ ≯',
-  '⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁺ ⁻ ⁼ ⁽ ⁾ ⁿ ₀ ₁ ₂ ₃ ₄ ₅ ₆ ₇ ₈ ₉ ₊ ₋ ₌ ₍ ₎ ₐ ₑ ₒ ₓ ₔ ₕ ₖ ₗ ₘ ₙ ₚ ₛ ₜ ₢ ₣ ₤ ₥ ₦ ₧ ₨ ₩ ₪ ₫',
-  '□ ■ ▢ ▣ ▤ ▥ ▦ ▧ ▨ ▩ ▪ ▫ ▬ ▭ ▮ ▯ ▰ ▱ ▲ △ ▴ ▵ ▶ ▷ ▸ ▹ ► ▻ ▼ ▽ ▾ ▿ ◀ ◁ ◂ ◃ ◄ ◅ ◆ ◇ ◈ ◉ ◊ ○ ◌ ◍ ◎ ● ◐ ◑',
-  '℀ ℁ ℂ ℃ ℄ ℅ ℆ ℇ ℈ ℉ ℊ ℋ ℌ ℍ ℎ ℏ ℐ ℑ ℒ ℓ ℔ ℕ № ℗ ℘ ℙ ℚ ℛ ℜ ℝ ℞ ℟ ℠ ℡ ™ ℣ ℤ ℥ Ω ℧ ℨ ℩ K Å ℬ ℭ ℮ ℯ ℰ ℱ Ⅎ ℳ ℴ ℵ ℶ ℷ ℸ',
-  '⌬ ⌭ ⌮ ⌯ ⌰ ⌱ ⌲ ⌳ ⌴ ⌵ ⌶ ⌷ ⌸ ⌹ ⌺ ⌻ ⌼ ⌽ ⌾ ⌿ ⍀ ⍁ ⍂ ⍃ ⍄ ⍅ ⍆ ⍇ ⍈ ⍉ ⍊ ⍋ ⍌ ⍍ ⍎ ⍏ ⍐ ⍑ ⍒ ⍓ ⍔ ⍕ ⍖ ⍗ ⍘ ⍙ ⍚ ⍛ ⍜ ⍝ ⍞ ⍟ ⍠ ⍡ ⍢ ⍣ ⍤ ⍥ ⍦ ⍧ ⍨ ⍩ ⍪ ⍫ ⍬ ⍭ ⍮ ⍯ ⍰',
-  'n b ⬝ ⬞ ⬟ ⬠ ⬡ ⬢ ⬣ ⬤ ⬥ ⬦ ⬧ ⬨ ⬩ ⬪ ⬫ ⬬ ⬭ ⬮ ⬯ ⬰ ⬱ ⬲ ⬳ ⬴ ⬵ ⬶ ⬷ ⬸ ⬹ ⬺ ⬻ ⬼ ⬽ ⬾ ⬿ ⭀ ⭁ ⭂ ⭃ ⭄ ⭅ ⭆ ⭇ ⭈ ⭉ ⭊ ⭋ ⭌ ⭍ ⭎ ⭏',
-  'i ⭑ ⭒ ⭓ ⭔ b ⭖ ⭗ ⭘ ⭙ ⭚ ⭛ ⭜ ⭝ ⭞ ⭟ ⭠ ⭡ ⭢ ⭣ ⭤ ⭥ ⭦ ⭧ ⭨ ⭩ ⭪ ⭫ ⭬ ⭭ ⭮ ⭯ ⭰ ⭱ ⭲ ⭳ ⭴ ⭵ ⭶ ⭷ ⭸ ⭹ ⭺ ⭻ ⭼ ⭽ ⭾ ⭿ ⮀ ⮁ ⮂ ⮃',
-  'f ❍ t ❏ ❐ ❑ ❒ x ❔ ❕ ❖ k ❘ ❙ ❚ ❛ ❜ ❝ ❞ ❟ ❠ ❡ ❢ ❣ ❤ ❥ ❦ ❧ ❨ ❩ ❪ ❫ ❬ ❭ ❮ ❯ ❰ ❱ ❲ ❳ ❴ ❵ ❶ ❷ ❸ ❹ ❺ ❻ ❼ ❽ ❾ ❿ ➀ ➁',
-  '⚰ ⚱ ⚲ ⚳ ⚴ ⚵ ⚶ ⚷ ⚸ ⚹ ⚺ ⚻ ⚼ k b ⚿ ⛀ ⛁ ⛂ ⛃ h j ⛆ ⛇ ⛈ ⛉ ⛊ ⛋ ⛌ ⛍ n ⛏ ⛐ ⛑ ⛒ ⛓ s ⛕ ⛖ ⛗ ⛘ ⛙ ⛚ ⛛ ⛜ ⛝ ⛞ b h ⛠ ⛡ ⛢ ⛣',
-  '⟐ ⟑ ⟒ ⟓ ⟔ ⟕ ⟖ ⟗ ⟘ ⟙ ⟚ ⟛ ⟜ ⟝ ⟞ ⟟ ⟠ ⟡ ⟢ ⟣ ⟤ ⟥ ⟦ ⟧ ⟨ ⟩ ⟪ ⟫ ⟬ ⟭ ⟮ ⟯ ∀ ∁ ∂ ∃ ∄ ∅ ∆ ∇ ∈ ∉ ∊ ∋ ∌ ∍ ∎ ∏ ∐ ∑',
-  '⍺ ⍻ ⍼ ⍽ ⍾ ⍿ ⎀ ⎁ ⎂ ⎃ ⎄ ⎅ ⎆ ⎇ ⎈ ⎉ ⎊ ⎋ ⎌ ⎍ ⎎ ⎏ ⎐ ⎑ ⎒ ⎓ ⎔ ⎕ ⎖ ⎗ ⎘ ⎙ ⎚ ⎛ ⎜ ⎝ ⎞ ⎟ ⎠ ⎡ ⎢ ⎣ ⎤ ⎥ ⎦ ⎧ ⎨ ⎩ ⎪ ⎫ ⎬ ⎭',
-  '⌀ ⌁ ⌂ ⌃ ⌄ ⌅ ⌆ ⌇ ⌈ ⌉ ⌊ ⌋ ⌌ ⌍ ⌎ ⌏ ⌐ ⌑ ⌒ ⌓ ⌔ ⌕ ⌖ ⌗ ⌘ ⌙ k l  ⌜ ⌝ ⌞ ⌟ ⌠ ⌡ ⌢ ⌣ ⌤ ⌥ ⌦ ⌧ ⌨ ⌬ ⌭ ⌮ ⌯ ⌰ ⌱ ⌲ ⌳ ⌴ ⌵ ⌶',
-  '▀ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █ ▉ ▊ ▋ ▌ ▍ ▎ ▏ ▐ ░ ▒ ▓ ▔ ▕ ▖ ▗ ▘ ▙ ▚ ▛ ▜ ▝ ▞ ▟ ■ □ ▢ ▣ ▤ ▥ ▦ ▧ ▨ ▩ ▪ ▫ ▬ ▭ ▮ ▯ ▰ ▱ ▲ △ ▴ ▵ ▶ ▷',
-  '◀ ◁ ◂ ◃ ◄ ◅ ◆ ◇ ◈ ◉ ◊ ○ ◌ ◍ ◎ ● ◐ ◑ ◒ ◓ ◔ ◕ ◖ ◗ ◘ ◙ ◚ ◛ ◜ ◝ ◞ ◟ ◠ ◡ ◢ ◣ ◤ ◥ ◦ ◧ ◨ ◩ ◪ ◫ ◬ ◭ ◮ ◯ ◰ ◱ ◲ ◳ ◴ ◵',
-  '0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z',
-  '⊰ ⊱ ⊲ ⊳ ⊴ ⊵ ⊶ ⊷ ⊸ ⊹ ⊺ ⊻ ⊼ ⊽ ⊾ ⊿ ⋀ ⋁ ⋂ ⋃ ⋄ ⋅ ⋆ ⋇ ⋈ ⋉ ⋊ ⋋ ⋌ ⋍ ⋎ ⋏ ⋐ ⋑ ⋒ ⋓ ⋔ ⋕ ⋖ ⋗ ⋘ ⋙ ⋚ ⋛ ⋜ ⋝ ⋞ ⋟',
-  '∫ ∬ ∭ ∮ ∯ ∰ ∱ ∲ ∳ ∴ ∵ ∶ ∷ ∸ ∹ ∺ ∻ ∼ ∽ ∾ ∿ ≀ ≁ ≂ ≃ ≄ ≅ ≆ ≇ ≈ ≉ ≊ ≋ ≌ ≍ ≎ ≏ ≐ ≑ ≒ ≓ ≔ ≕ ≖ ≗ ≘ ≙ ≚ ≛ ≜ ≝ ≞ ≟',
-  '⦀ ⦁ ⦂ ⦃ ⦄ ⦅ ⦆ ⦇ ⦈ ⦉ ⦊ ⦋ ⦌ ⦍ ⦎ ⦏ ⦐ ⦑ ⦒ ⦓ ⦔ ⦕ ⦖ ⦗ ⦘ ⦙ ⦚ ⦛ ⦜ ⦝ ⦞ ⦟ ⦠ ⦡ ⦢ ⦣ ⦤ ⦥ ⦦ ⦧ ⦨ ⦩ ⦪ ⦫ ⦬ ⦭ ⦮ ⦯ ⦰ ⦱ ⦲ ⦳',
-  '⧀ ⧁ ⧂ ⧃ ⧄ ⧅ ⧆ ⧇ ⧈ ⧉ ⧊ ⧋ ⧌ ⧍ ⧎ ⧏ ⧐ ⧑ ⧒ ⧓ ⧔ ⧕ ⧖ ⧗ ⧘ ⧙ ⧚ ⧛ ⧜ ⧝ ⧞ ⧟ ⧠ ⧡ ⧢ ⧣ ⧤ ⧥ ⧦ ⧧ ⧨ ⧩ ⧪ ⧫ ⧬ ⧭ ⧮ ⧯ ⧰ ⧱ ⧲ ⧳'
-];
-
 const HomePage: React.FC = () => {
-  const mathDecorationRef = useRef<HTMLDivElement>(null);
-  const fullscreenMathRef = useRef<HTMLDivElement>(null);
-  const mainTitleRef = useRef<HTMLDivElement>(null);
-  const subtitleRef = useRef<HTMLDivElement>(null);
-
-  const [fullscreenMathShuffler, setFullscreenMathShuffler] = useState<TextShuffler | null>(null);
-  const [titleShuffler, setTitleShuffler] = useState<TextShuffler | null>(null);
-  const [subtitleShuffler, setSubtitleShuffler] = useState<TextShuffler | null>(null);
-
-  // Animation stage states
-  const [decorationsAnimated, setDecorationsAnimated] = useState(false);
-  const [showFullscreenMath, setShowFullscreenMath] = useState(false);
-  const [showTitle, setShowTitle] = useState(false);
-  const [showSubtitle, setShowSubtitle] = useState(false);
-
-  // Direct inline styles to bypass ALL CSS conflicts
-  const getDecorationStyle = (position: string, animated: boolean) => {
-    const baseStyle = {
-      position: 'absolute' as const,
-      fontSize: '1.5em',
-      color: '#34495e',
-      fontWeight: 300,
-      zIndex: 9999,
-      fontFamily: "'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Courier New', monospace",
-      transition: 'all 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-      margin: 0,
-      padding: 0,
-    };
-
-    if (!animated) {
-      // Start from exact center
-      return {
-        ...baseStyle,
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-      };
-    }
-
-    // Animate to final positions
-    switch (position) {
-      case 'top-left':
-        return { ...baseStyle, top: '2rem', left: '2rem', transform: 'none' };
-      case 'top-right':
-        return { ...baseStyle, top: '2rem', right: '2rem', transform: 'none' };
-      case 'bottom-left':
-        return { ...baseStyle, bottom: '2rem', left: '2rem', transform: 'none' };
-      case 'bottom-right':
-        return { ...baseStyle, bottom: '2rem', right: '2rem', transform: 'none' };
-      case 'side-left':
-        return { ...baseStyle, top: '50%', left: '2rem', transform: 'translateY(-50%)' };
-      case 'side-right':
-        return { ...baseStyle, top: '50%', right: '2rem', transform: 'translateY(-50%)' };
-      default:
-        return baseStyle;
-    }
-  };
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [animationStage, setAnimationStage] = useState(0);
+  const [swipeCount, setSwipeCount] = useState(0);
+  const lastScrollTime = useRef(0);
+  const sceneRef = useRef<{
+    scene?: THREE.Scene;
+    camera?: THREE.PerspectiveCamera;
+    renderer?: THREE.WebGLRenderer;
+    composer?: any;
+    cubeGroup?: THREE.Group;
+    ring0?: THREE.LineSegments;
+    ring1?: THREE.LineSegments;
+    ring2?: THREE.LineSegments;
+    cylinder?: THREE.LineSegments;
+    animationId?: number;
+  }>({});
 
   useEffect(() => {
-    // Start new animation sequence
+    if (!canvasRef.current) return;
 
-    // Stage 1: Move decorations from center to positions (0-1000ms)
-    setTimeout(() => {
-      setDecorationsAnimated(true);
-    }, 200);
+    // Initialize scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, (window.innerWidth / 2) / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, alpha: true });
 
-    // Stage 2: Show fullscreen math symbols (1000-2500ms)
-    setTimeout(() => {
-      setShowFullscreenMath(true);
-    }, 1000);
+    // Set canvas to proper size to maintain aspect ratio
+    const canvasWidth = window.innerWidth / 2;
+    const canvasHeight = window.innerHeight;
 
-    // Hide fullscreen math and start title animation (2200ms)
-    setTimeout(() => {
-      setShowFullscreenMath(false);
-      setShowTitle(true);
-    }, 2200);
+    renderer.setSize(canvasWidth, canvasHeight);
+    renderer.setClearColor(0x000000, 0);
 
+    // Create groups
+    const cubeGroup = new THREE.Group();
+    scene.add(cubeGroup);
+
+    // Create rings function
+    function makeRing(radius: number, parent: THREE.Object3D) {
+      const geometry = new THREE.CylinderGeometry(radius, radius, 0.1, 64);
+      const edges = new THREE.EdgesGeometry(geometry);
+      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xebe3c7 }));
+      parent.add(line);
+      return line;
+    }
+
+    // Create rings
+    const ring0 = makeRing(3, scene);
+    const ring1 = makeRing(3.3, ring0);
+    const ring2 = makeRing(3.6, ring1);
+
+    // Create octahedron (main globe)
+    const geometry = new THREE.OctahedronGeometry(2, 3);
+    const material = new THREE.MeshPhongMaterial({ color: 0x999999, opacity: 0.6, transparent: true });
+    const cube = new THREE.Mesh(geometry, material);
+    cubeGroup.add(cube);
+
+    const edges = new THREE.EdgesGeometry(geometry);
+    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xE5E4E2 }));
+    line.scale.set(1.1, 1.1, 1.1);
+    cubeGroup.add(line);
+
+    // Create cylinder
+    const cylinderGeometry = new THREE.CylinderGeometry(8, 8, 1000, 3);
+    const cylinderEdges = new THREE.EdgesGeometry(cylinderGeometry);
+    const cylinder = new THREE.LineSegments(cylinderEdges, new THREE.LineBasicMaterial({ color: 0x888888 }));
+    cylinder.rotation.set(Math.PI / 2, 0, 0);
+    scene.add(cylinder);
+
+    // Add lighting
+    const light = new THREE.DirectionalLight(0xFFFFFF, 1);
+    scene.add(light);
+
+    // Position camera
+    camera.position.z = 8;
+
+    // Store references
+    sceneRef.current = {
+      scene,
+      camera,
+      renderer,
+      cubeGroup,
+      ring0,
+      ring1,
+      ring2,
+      cylinder
+    };
+
+    // Animation loop
+    function animate() {
+      if (!sceneRef.current.cubeGroup || !sceneRef.current.ring0 || !sceneRef.current.ring1 || !sceneRef.current.ring2 || !sceneRef.current.cylinder || !sceneRef.current.renderer) return;
+
+      sceneRef.current.cubeGroup.rotation.x += 0.005;
+      sceneRef.current.cubeGroup.rotation.y += 0.015;
+      sceneRef.current.ring0.rotation.x += 0.006;
+      sceneRef.current.ring0.rotation.y += 0.016;
+      sceneRef.current.ring1.rotation.z += 0.007;
+      sceneRef.current.ring1.rotation.y += 0.017;
+      sceneRef.current.ring2.rotation.x += 0.008;
+      sceneRef.current.ring2.rotation.y += 0.018;
+      sceneRef.current.cylinder.rotation.y += 0.001;
+      sceneRef.current.cylinder.rotation.x -= 0.0005;
+      sceneRef.current.cylinder.rotation.z += 0.0015;
+
+      sceneRef.current.animationId = requestAnimationFrame(animate);
+      sceneRef.current.renderer.render(sceneRef.current.scene!, sceneRef.current.camera!);
+    }
+
+    animate();
+
+    // Handle window resize
+    function handleResize() {
+      if (!sceneRef.current.camera || !sceneRef.current.renderer) return;
+
+      const canvasWidth = window.innerWidth / 2;
+      const canvasHeight = window.innerHeight;
+
+      sceneRef.current.camera.aspect = canvasWidth / canvasHeight;
+      sceneRef.current.camera.updateProjectionMatrix();
+      sceneRef.current.renderer.setSize(canvasWidth, canvasHeight);
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    // Scroll animation logic - 只处理文字动画，不拦截页面切换
+    function handleScroll(event: WheelEvent) {
+      const now = Date.now();
+
+      // Throttle scrolling to prevent too fast transitions
+      if (now - lastScrollTime.current < 300) {
+        return;
+      }
+
+      if (event.deltaY > 0) { // Scrolling down
+        // 只在前两次滑动时更新动画和计数
+        if (swipeCount < 2) {
+          setSwipeCount(prev => prev + 1);
+          if (animationStage < 2) {
+            setAnimationStage(prev => prev + 1);
+          }
+          lastScrollTime.current = now;
+        }
+        // 不阻止默认滚动行为，让正常的页面切换发生
+      }
+    }
+
+    window.addEventListener('wheel', handleScroll, { passive: true });
+
+    // Cleanup function
     return () => {
-      fullscreenMathShuffler?.destroy();
-      titleShuffler?.destroy();
-      subtitleShuffler?.destroy();
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('wheel', handleScroll);
+      if (sceneRef.current.animationId) {
+        cancelAnimationFrame(sceneRef.current.animationId);
+      }
+      if (sceneRef.current.renderer) {
+        sceneRef.current.renderer.dispose();
+      }
     };
-  }, []);
-
-  useEffect(() => {
-    // Initialize and start title animation
-    if (showTitle && mainTitleRef.current) {
-      const titleLines = [
-        '世界顶尖的独家科技',
-        '双核赋能',
-        '革新产品全球竞争力'
-      ];
-
-      const titleInstance = new TextShuffler(
-        mainTitleRef.current,
-        titleLines,
-        { durationInterval: 150, wordDuration: 0.02 }
-      );
-      setTitleShuffler(titleInstance);
-      titleInstance.show();
-
-      // Start subtitle animation after title completes (1s duration)
-      setTimeout(() => {
-        setShowSubtitle(true);
-      }, titleLines.length * 150 + 300);
-    }
-  }, [showTitle]);
-
-  useEffect(() => {
-    // Initialize and start subtitle animation
-    if (showSubtitle && subtitleRef.current) {
-      const subtitleLines = [
-        '拥有两项世界领先的专利技术，并非普通的量变工具',
-        '从产品力本质到商业模式，重塑规则重构的质变武器'
-      ];
-
-      const subtitleInstance = new TextShuffler(
-        subtitleRef.current,
-        subtitleLines,
-        { durationInterval: 200, wordDuration: 0.015 }
-      );
-      setSubtitleShuffler(subtitleInstance);
-      subtitleInstance.show();
-    }
-  }, [showSubtitle]);
-
-  // Initialize fullscreen math animation when it becomes visible
-  useEffect(() => {
-    if (showFullscreenMath && fullscreenMathRef.current) {
-      const fullscreenInstance = new TextShuffler(
-        fullscreenMathRef.current,
-        MATH_SYMBOLS,
-        { durationInterval: 25, wordDuration: 0.012 }
-      );
-      setFullscreenMathShuffler(fullscreenInstance);
-      fullscreenInstance.show();
-    }
-  }, [showFullscreenMath]);
+  }, [animationStage, swipeCount]);
 
   return (
-    <div className="homepage" style={{ position: 'relative', minHeight: '100vh' }}>
-      {/* Corner decorations with forced inline styles */}
-      <div style={getDecorationStyle('top-left', decorationsAnimated)}>+&nbsp;&nbsp;-</div>
-      <div style={getDecorationStyle('top-right', decorationsAnimated)}>-&nbsp;&nbsp;+</div>
-      <div style={getDecorationStyle('bottom-left', decorationsAnimated)}>+&nbsp;&nbsp;-</div>
-      <div style={getDecorationStyle('bottom-right', decorationsAnimated)}>-&nbsp;&nbsp;+</div>
+    <div className="homepage">
+      {/* 左侧文字内容 */}
+      <div className="left-content">
+        <div className="text-content">
+          <h1 className={`main-title ${animationStage >= 1 ? 'animate-in' : ''}`}>独家科技</h1>
+          <h1 className={`main-title ${animationStage >= 1 ? 'animate-in' : ''}`}>双核赋能</h1>
+          <h1 className={`main-title long-title ${animationStage >= 1 ? 'animate-in' : ''}`}>革新产品全球竞争力</h1>
 
-      {/* Side decorations with forced inline styles */}
-      <div style={{...getDecorationStyle('side-left', decorationsAnimated), fontSize: '2em'}}>|</div>
-      <div style={{...getDecorationStyle('side-right', decorationsAnimated), fontSize: '2em'}}>|</div>
-
-      {/* Fullscreen math symbols overlay */}
-      {showFullscreenMath && (
-        <div className="fullscreen-math-overlay">
-          <div className="fullscreen-math-symbols" ref={fullscreenMathRef}></div>
-        </div>
-      )}
-
-      {/* Main content container */}
-      <div className="content-container">
-        {/* Left content - Main text */}
-        <div className="left-content">
-          <div className="content-block">
-            {/* Main title */}
-            <div className="main-title" ref={mainTitleRef}></div>
-
-            {/* Subtitle */}
-            {showSubtitle && (
-              <div className="subtitle fade-in-up">
-                <div ref={subtitleRef}></div>
-              </div>
-            )}
+          <div className={`description ${animationStage >= 2 ? 'animate-in' : ''}`}>
+            <p>我们拥有2项世界领先的专利技术</p>
+            <p>它们并非普通的量变工具</p>
+            <p>而是能够实现从 产品力本质 到 商业模式</p>
+            <p>价值重塑+规则重构的质变武器</p>
           </div>
         </div>
+      </div>
 
-        {/* Right content - Mathematical symbols (hidden in new design) */}
-        <div className="right-content" style={{ display: 'none' }}>
-          <div className="math-symbols" ref={mathDecorationRef}></div>
-        </div>
+      {/* 右侧3D动画区域 */}
+      <div className="right-content">
+        <canvas ref={canvasRef} className="globe-canvas" />
+        <div className={`bottom-text ${animationStage >= 2 ? 'animate-in' : ''}`}>穿越周期·双核无界</div>
       </div>
     </div>
   );

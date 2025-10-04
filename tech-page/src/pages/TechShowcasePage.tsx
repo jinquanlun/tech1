@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/TechShowcasePage.css';
 
 // 技术品类数据
@@ -128,6 +128,7 @@ const pefCategories = [
 
 const TechShowcasePage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [focusedSection, setFocusedSection] = useState<'hph' | 'pef'>('hph'); // 当前聚焦区域
   const [scrolling, setScrolling] = useState(false);
 
@@ -137,8 +138,25 @@ const TechShowcasePage: React.FC = () => {
   const [pefSelectedCategory, setPefSelectedCategory] = useState<any>(null);
   const [pefShowCategory, setPefShowCategory] = useState(false);
 
+  // 视频播放状态
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState('');
+  const [currentVideoTitle, setCurrentVideoTitle] = useState('');
+
   const animTime = 1000;
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // 处理从详情页返回时的导航状态
+  useEffect(() => {
+    const state = location.state as { targetSection?: 'hph' | 'pef' } | null;
+    if (state?.targetSection) {
+      setFocusedSection(state.targetSection);
+      // 延迟清除状态，确保组件已经更新
+      setTimeout(() => {
+        navigate(location.pathname, { replace: true });
+      }, 100);
+    }
+  }, [location.state, navigate, location.pathname]);
 
   // 粒子动画相关
   useEffect(() => {
@@ -420,7 +438,11 @@ const TechShowcasePage: React.FC = () => {
                     <div className="title-line-1">HPH</div>
                     <div className="title-line-2">纳米破碎·动态灭菌</div>
                   </h2>
-                  <button className="tech-button" onClick={() => navigate('/video/hph')}>
+                  <button className="tech-button" onClick={() => {
+                    setCurrentVideoUrl('/videos/hph-demo.mp4');
+                    setCurrentVideoTitle('HPH 纳米破碎·动态灭菌技术演示');
+                    setIsVideoOpen(true);
+                  }}>
                     <span className="vline"></span>
                     <span className="text">视 频 演 示</span>
                   </button>
@@ -444,7 +466,11 @@ const TechShowcasePage: React.FC = () => {
                   </p>
                   <button className="tech-button-right" onClick={() => navigate('/tech/hph')}>
                     <span className="vline"></span>
-                    <span className="text">查 看 详 情</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="white" strokeWidth="3">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span className="text">  查 看 详 情</span>
                   </button>
                 </div>
               </div>
@@ -487,7 +513,11 @@ const TechShowcasePage: React.FC = () => {
                     <div className="title-line-1">PEF</div>
                     <div className="title-line-2">超冰温·脉冲电场保鲜</div>
                   </h2>
-                  <button className="tech-button" onClick={() => navigate('/video/pef')}>
+                  <button className="tech-button" onClick={() => {
+                    setCurrentVideoUrl('/videos/pef-demo.mp4');
+                    setCurrentVideoTitle('PEF 超冰温·脉冲电场保鲜技术演示');
+                    setIsVideoOpen(true);
+                  }}>
                     <span className="vline"></span>
                     <span className="text">视 频 演 示</span>
                   </button>
@@ -513,7 +543,11 @@ const TechShowcasePage: React.FC = () => {
                   </p>
                   <button className="tech-button-right" onClick={() => navigate('/tech/pef')}>
                     <span className="vline"></span>
-                    <span className="text"> 查 看 详 情</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="white" strokeWidth="3">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span className="text ">查 看 详 情</span>
                   </button>
                 </div>
               </div>
@@ -594,6 +628,30 @@ const TechShowcasePage: React.FC = () => {
                   <span className="text">{category.title}</span>
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 极简视频播放窗口 */}
+      {isVideoOpen && (
+        <div className="minimal-video-overlay" onClick={() => setIsVideoOpen(false)}>
+          <div className="minimal-video-container" onClick={(e) => e.stopPropagation()}>
+            <div className="minimal-video-header">
+              <h3 className="minimal-video-title">{currentVideoTitle}</h3>
+              <button className="minimal-video-close" onClick={() => setIsVideoOpen(false)}>
+                ×
+              </button>
+            </div>
+            <div className="minimal-video-content">
+              <video
+                controls
+                autoPlay
+                src={currentVideoUrl}
+                className="minimal-video-player"
+              >
+                您的浏览器不支持视频播放。
+              </video>
             </div>
           </div>
         </div>

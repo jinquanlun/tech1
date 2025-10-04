@@ -1,6 +1,153 @@
 /* TechShowcasePage Styles - Based on CodePen Skewed Scroll */
 @import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap");
 
+/* 极简视频播放窗口样式 */
+.minimal-video-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(8px);
+}
+
+.minimal-video-container {
+  background: rgba(26, 29, 36, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  max-width: 80vw;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: slideUp 0.4s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.minimal-video-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.minimal-video-title {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+  font-family: "Heiti SC", "Heiti TC", -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.minimal-video-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 24px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.minimal-video-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.minimal-video-content {
+  padding: 0;
+}
+
+.minimal-video-player {
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  display: block;
+  background: #000;
+  outline: none;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .minimal-video-container {
+    max-width: 95vw;
+    max-height: 85vh;
+    margin: 0 10px;
+  }
+
+  .minimal-video-header {
+    padding: 12px 16px;
+  }
+
+  .minimal-video-title {
+    font-size: 14px;
+  }
+
+  .minimal-video-close {
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+  }
+
+  .minimal-video-player {
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .minimal-video-container {
+    max-width: 98vw;
+    border-radius: 12px;
+  }
+
+  .minimal-video-header {
+    padding: 10px 12px;
+  }
+
+  .minimal-video-title {
+    font-size: 13px;
+  }
+
+  .minimal-video-player {
+    max-height: 45vh;
+  }
+}
+
 *, *:before, *:after {
   box-sizing: border-box;
   margin: 0;
@@ -20,8 +167,8 @@
 
 /* Variables */
 :root {
-  --skew-deg: 18deg;
-  --magic-vh: 32.4vh; /* this number is magic and depends on skew angle */
+  --skew-deg: 12deg;
+  --magic-vh: 20vh; /* this number is magic and depends on skew angle */
   --scroll-time: 1s;
 }
 
@@ -126,9 +273,10 @@
 }
 
 .skw-page__half--right .skw-page__content {
-  padding-left: 30%;
-  padding-right: 30%;
+  padding-left: 35%;  /* 从30%增加到35%，让文字往右移 */
+  padding-right: 25%; /* 相应减小右边距，保持平衡 */
   transform-origin: 0 100%;
+  padding-top: 43px;  /* 添加上边距，让右侧文字与左侧标题齐平 */
 }
 
 .skw-page.inactive .skw-page__content {
@@ -157,25 +305,29 @@
   margin-bottom: 35px;
 }
 
+/* 技术描述文字的基础样式 - 保持18px字体，通过间距和容器优化防止溢出 */
 .skw-page__description {
-  font-size: 22px;
+  font-size: 18px;  /* 保持18px字体大小不变 */
   text-align: left;
-  line-height: 1.6;
+  line-height: 2.5;  /* 适中的行高 */
   margin-bottom: 20px;
   transform: skewX(-10deg);
   display: block;
-  width: 100%;
-  letter-spacing: 0.8px;
-  word-spacing: 2px;
+  width: 120%;  /* 增加容器宽度，给文字更多空间 */
+  letter-spacing: -0.2px;  /* 负值让字符更紧凑 */
+  word-spacing: -0.5px;  /* 负值让词间距更紧凑 */
+  font-weight: 600;  /* 适中的字体粗细 */
+  font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
 .skw-page__description:first-of-type {
-  margin-left: -80px;
-  margin-bottom: 30px;
+  margin-left: -120px;
+  margin-bottom: 45px;
 }
 
+/* PEF页面第二段文字的左边距 - 调整对齐 */
 .skw-page__description:last-of-type {
-  margin-left: -100px;
+  margin-left: -160px;  /* 从-140px改为-160px，让文字更左对齐 */
 }
 
 .skw-page__link {
@@ -186,12 +338,12 @@
 .tech-button, .tech-button-right {
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
+  justify-content: center; /* 改为左对齐，减少右边空位 */
+  text-align: flex-start;
   background: transparent;
   color: white;
   padding: 0;
-  font-family: "Chakra Petch", sans-serif;
+  font-family: "Microsoft JhengHei UI", "Microsoft JhengHei", "微软雅黑", "Chakra Petch", sans-serif;
   font-size: 1.1rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   position: relative;
@@ -200,7 +352,8 @@
   letter-spacing: 2px;
   font-weight: 500;
   height: 4.2rem;
-  width: 220px;
+  width: auto; /* 改为自适应宽度 */
+  min-width: 190px; /* 设置最小宽度 */
   margin: 35px 0 0 0;
   pointer-events: auto;
   transition: all 0.25s ease-in-out;
@@ -260,10 +413,41 @@
 .tech-button .text, .tech-button-right .text {
   padding: 0 0.75rem;
   pointer-events: none;
+  font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  order: 2; /* 确保文字显示在图标后面 */
+  flex-shrink: 0; /* 防止文字被压缩 */
+}
+
+/* 查看详情按钮的加号图标样式 - 调整位置和样式 */
+.tech-button-right svg {
+  min-width: 18px !important;
+  min-height: 18px !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0 6px; /* 减少左右间距，让加号更靠左 */
+  margin: 0;
+  margin-left: -15.5px; /* 向左偏移，移到边框区域中间 */
+  pointer-events: none;
+  display: inline-block !important;
+  flex-shrink: 0;
+  order: 1;
+  overflow: visible !important;
+}
+
+/* 专门针对SVG内部线条的样式 - 更细的线条 */
+.tech-button-right svg line {
+  stroke: #ffffff !important;
+  stroke-width: 1.5 !important; /* 减少粗细，从3改为1.5 */
+  fill: none !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  vector-effect: non-scaling-stroke;
 }
 
 .vline {
   pointer-events: none;
+  order: 3; /* 确保vline在最后 */
 }
 
 .vline:before {
@@ -414,7 +598,7 @@
   bottom: 40px;
   background: transparent;
   z-index: 100; /* 确保导航栏在最上层 */
-  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', "Chakra Petch", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Chakra Petch", sans-serif !important;
   pointer-events: none;
 }
 
@@ -440,7 +624,7 @@
   background: transparent;
   color: rgba(255, 255, 255, 0.7);
   padding: 8px 0;
-  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', "Chakra Petch", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Chakra Petch", sans-serif !important;
   font-size: 0.75rem;
   border: none;
   cursor: pointer;
@@ -473,6 +657,7 @@
 
 .nav-btn .text {
   padding: 0;
+  font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
 .nav-btn.active {
@@ -595,12 +780,12 @@
 
 /* 左侧内容特殊样式 */
 .detail-page__half--left .detail-page__content {
-  padding: 5% 8% 5% 15%;
+  padding: 5% 8% 5% 20%;
 }
 
 /* 右侧内容特殊样式 */
 .detail-page__half--right .detail-page__content {
-  padding: 5% 25% 5% 10%;
+  padding: 5% 20% 5% 5%;
   text-align: left;
   justify-content: center;
   align-items: center;
@@ -609,24 +794,26 @@
 }
 
 .detail-page__content h2 {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   font-weight: 800;
   margin-bottom: 20px;
   text-transform: uppercase;
   text-align: center;
   letter-spacing: 2px;
+  font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
 .detail-page__content h3 {
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   font-weight: 600;
   margin-bottom: 20px;
   color: #fff;
   text-align: center;
+  font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
 .detail-page__content p {
-  font-size: 1rem;
+  font-size: 1.3rem;
   line-height: 1.6;
   margin-bottom: 20px;
   color: rgba(255, 255, 255, 0.9);
@@ -635,6 +822,7 @@
   overflow-wrap: break-word;
   white-space: normal;
   max-width: 100%;
+  font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
 /* 右侧文字特殊样式 */
@@ -644,18 +832,20 @@
   width: 24em; /* 和下面的文字保持相同宽度 */
   max-width: 100%;
   margin-bottom: 20px;
+  font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
 .detail-page__half--right .detail-page__content p {
   text-align: left;
   line-height: 1.8;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   word-break: break-all;
   overflow-wrap: break-word;
   white-space: normal;
   width: 24em; /* 大约24个字的宽度 */
   max-width: 100%;
   margin: 0;
+  font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
 .back-button {

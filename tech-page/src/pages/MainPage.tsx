@@ -1,10 +1,25 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import HomePage from './HomePage';
 import TechShowcasePage from './TechShowcasePage';
 import InfiniteHero from '../components/ui/infinite-hero';
 import '../styles/MainPage.css';
 
 const MainPage: React.FC = () => {
+  const location = useLocation();
+  const techSectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const state = location.state as { targetSection?: 'hph' | 'pef' } | null;
+    if (state?.targetSection && techSectionRef.current) {
+      // 滚动到技术页面部分
+      techSectionRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }, [location.state]);
+
   return (
     <div className="main-page">
       {/* 首页部分 */}
@@ -13,7 +28,7 @@ const MainPage: React.FC = () => {
       </section>
 
       {/* 技术展示页部分 */}
-      <section className="tech-section">
+      <section className="tech-section" ref={techSectionRef}>
         <TechShowcasePage />
       </section>
 

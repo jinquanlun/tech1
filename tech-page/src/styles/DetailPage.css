@@ -7,7 +7,7 @@
   min-height: 100vh;
   background: #fefefe !important;
   color: #2a2a2a;
-  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Noto Serif SC', serif;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
   line-height: 1.7;
   overflow-x: hidden;
 }
@@ -45,7 +45,7 @@
   cursor: pointer;
   padding: 0.5rem;
   transition: all 0.3s ease;
-  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
   font-weight: 300;
 }
 
@@ -76,21 +76,22 @@
 }
 
 .hero-title {
-  font-size: 10rem;
-  font-weight: 300;
+  font-size: 8rem;
+  font-weight: 500;
   color: #1a1a1a;
   margin-bottom: 1rem;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
 }
 
 .hero-subtitle {
-  font-size: 1.5rem;
-  color: #888;
+  font-size: 4rem;
+  color: #666;
   font-weight: 400;
-  margin-bottom: 3rem;
-  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
-  letter-spacing: 0.2em;
+  margin-bottom: 2rem;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
 }
 
@@ -100,10 +101,11 @@
 }
 
 .hero-description p {
-  font-size: 1.1rem;
+  font-size: 1.6rem;
   color: #555;
-  margin-bottom: 1.5rem;
-  font-weight: 300;
+  margin-bottom: 2.4rem;
+  font-weight: 400;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
 }
 
 .hero-description p:last-child {
@@ -112,21 +114,22 @@
 
 /* 内容区块 */
 .content-section {
-  margin-bottom: 10rem;
+  margin-bottom: 15rem;
   position: relative;
 }
 
 .section-header {
-  margin-bottom: 4rem;
+  margin-bottom: 6rem;
   text-align: center;
 }
 
 .section-header h2 {
-  font-size: 2.8rem;
+  font-size: 3.5rem;
   color: #1a1a1a;
-  font-weight: 400;
-  margin-bottom: 1rem;
-  letter-spacing: -0.01em;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.05em;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
 }
 
 .section-line {
@@ -140,7 +143,7 @@
 .content-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 4rem 6rem;
+  gap: 6rem 8rem;
   max-width: 1000px;
   margin: 0 auto;
 }
@@ -150,18 +153,21 @@
 }
 
 .content-block h3 {
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   color: #2a2a2a;
   font-weight: 500;
-  margin-bottom: 1.5rem;
-  letter-spacing: -0.01em;
+  margin-bottom: 2.2rem;
+  letter-spacing: 0.02em;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
 }
 
 .content-block p {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   color: #666;
-  font-weight: 300;
-  line-height: 1.8;
+  font-weight: 400;
+  line-height: 2.0;
+  margin-bottom: 1rem;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
 }
 
 /* 技术列表 */
@@ -206,25 +212,26 @@
 .effect-value {
   font-size: 1rem;
   color: #888;
-  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
-  font-weight: 300;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
+  font-weight: 400;
 }
 
 /* 应用领域 */
 .application-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6rem 4rem;
+  gap: 8rem 6rem;
   margin: 0 auto;
   max-width: 1000px;
 }
 
 .app-category h3 {
-  font-size: 1.3rem;
+  font-size: 2.0rem;
   color: #2a2a2a;
   font-weight: 500;
-  margin-bottom: 2rem;
-  letter-spacing: -0.01em;
+  margin-bottom: 3rem;
+  letter-spacing: 0.02em;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
 }
 
 .app-items {
@@ -234,17 +241,19 @@
 }
 
 .app-item h4 {
-  font-size: 1rem;
+  font-size: 1.6rem;
   color: #2a2a2a;
   font-weight: 500;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1.2rem;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
 }
 
 .app-item p {
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   color: #666;
-  font-weight: 300;
-  line-height: 1.7;
+  font-weight: 400;
+  line-height: 1.9;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
 }
 
 /* 解决方案特殊样式 */
@@ -254,56 +263,56 @@
 }
 
 .solution-highlight {
-  margin-bottom: 4rem;
-  padding: 3rem 0;
+  margin-bottom: 6rem;
+  padding: 4rem 0;
   border-bottom: 1px solid #f0f0f0;
 }
 
 .solution-highlight h3 {
-  font-size: 1.8rem;
+  font-size: 3.6rem;
   color: #1a1a1a;
   font-weight: 400;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.2rem;
   letter-spacing: -0.01em;
 }
 
 .solution-highlight p {
-  font-size: 1.1rem;
+  font-size: 1.65rem;
   color: #555;
   font-weight: 300;
-  line-height: 1.8;
+  line-height: 1.9;
   max-width: 700px;
 }
 
 .advantages-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 4rem;
+  gap: 6rem;
 }
 
 .advantage-item {
-  padding: 2rem 0;
+  padding: 3rem 0;
 }
 
 .advantage-item h4 {
-  font-size: 1.4rem;
+  font-size: 2.8rem;
   color: #2a2a2a;
   font-weight: 500;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.2rem;
   letter-spacing: -0.01em;
 }
 
 .advantage-item p {
-  font-size: 1rem;
+  font-size: 1.5rem;
   color: #666;
   font-weight: 300;
-  line-height: 1.8;
-  margin-bottom: 1rem;
+  line-height: 1.9;
+  margin-bottom: 1.5rem;
   max-width: 600px;
 }
 
 .advantage-note {
-  font-size: 0.9rem;
+  font-size: 1.35rem;
   color: #888;
   font-style: italic;
   font-weight: 300;
@@ -324,16 +333,16 @@
 }
 
 .step-number {
-  font-size: 0.8rem;
+  font-size: 1.2rem;
   color: #888;
-  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
-  font-weight: 300;
-  margin-bottom: 0.8rem;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
+  font-weight: 400;
+  margin-bottom: 1.2rem;
   letter-spacing: 0.1em;
 }
 
 .step-text {
-  font-size: 0.9rem;
+  font-size: 1.35rem;
   color: #2a2a2a;
   font-weight: 400;
 }
@@ -342,7 +351,7 @@
 .team-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 4rem 6rem;
+  gap: 6rem 8rem;
   margin-left: 8%;
   max-width: 1000px;
 }
@@ -352,51 +361,51 @@
 }
 
 .team-member h4 {
-  font-size: 1.4rem;
+  font-size: 2.8rem;
   color: #2a2a2a;
   font-weight: 500;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
 }
 
 .team-member .title {
-  font-size: 0.9rem;
+  font-size: 1.8rem;
   color: #888;
-  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
-  font-weight: 300;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
+  font-weight: 400;
   display: block;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   letter-spacing: 0.05em;
 }
 
 .team-member p {
-  font-size: 0.95rem;
+  font-size: 1.42rem;
   color: #666;
   font-weight: 300;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 /* 公司价值观 */
 .values-content {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4rem;
+  gap: 6rem;
   margin-left: 8%;
   max-width: 1000px;
-  margin-bottom: 4rem;
+  margin-bottom: 6rem;
 }
 
 .value-item h4 {
-  font-size: 1.1rem;
+  font-size: 2.2rem;
   color: #2a2a2a;
   font-weight: 500;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .value-item p {
-  font-size: 0.95rem;
+  font-size: 1.42rem;
   color: #666;
   font-weight: 300;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 .company-footer {
@@ -406,17 +415,17 @@
 }
 
 .company-footer p {
-  font-size: 1.1rem;
+  font-size: 1.65rem;
   color: #2a2a2a;
   font-weight: 400;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .company-lab {
-  font-size: 0.9rem;
+  font-size: 1.35rem;
   color: #888;
-  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
-  font-weight: 300;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
+  font-weight: 400;
   letter-spacing: 0.05em;
 }
 
@@ -443,8 +452,8 @@
   display: block;
   font-size: 2rem;
   color: #1a1a1a;
-  font-weight: 300;
-  font-family: 'zcoolqingkehuangyouti', '站酷庆科黄油体', 'Inter', sans-serif;
+  font-weight: 500;
+  font-family: "SimSun", "宋体", "Noto Serif SC", serif !important;
   margin-bottom: 0.5rem;
 }
 
@@ -655,8 +664,8 @@
 }
 
 .validation-item {
-  margin-bottom: 6rem;
-  padding-bottom: 4rem;
+  margin-bottom: 8rem;
+  padding-bottom: 5rem;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -666,19 +675,19 @@
 }
 
 .validation-item h3 {
-  font-size: 1.6rem;
+  font-size: 3.2rem;
   color: #1a1a1a;
   font-weight: 500;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.2rem;
   letter-spacing: -0.01em;
 }
 
 .validation-item p {
-  font-size: 1.2rem;
+  font-size: 1.8rem;
   color: #666;
   font-weight: 300;
-  line-height: 1.8;
-  margin-bottom: 3rem;
+  line-height: 1.9;
+  margin-bottom: 4rem;
   max-width: 800px;
 }
 
@@ -707,10 +716,10 @@
 }
 
 .comparison-group h4 {
-  font-size: 1.2rem;
+  font-size: 2.4rem;
   color: #2a2a2a;
   font-weight: 500;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   letter-spacing: -0.01em;
 }
 
@@ -728,8 +737,8 @@
 }
 
 .comparison-item {
-  margin-bottom: 6rem;
-  padding-bottom: 4rem;
+  margin-bottom: 8rem;
+  padding-bottom: 5rem;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -739,10 +748,10 @@
 }
 
 .comparison-item h3 {
-  font-size: 1.6rem;
+  font-size: 3.2rem;
   color: #1a1a1a;
   font-weight: 500;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   letter-spacing: -0.01em;
 }
 
@@ -768,13 +777,13 @@
 
 .tech-comparison-table th {
   background: #f0f0f0;
-  font-size: 1rem;
+  font-size: 2rem;
   color: #2a2a2a;
   font-weight: 500;
 }
 
 .tech-comparison-table td {
-  font-size: 0.95rem;
+  font-size: 1.42rem;
   color: #666;
   font-weight: 300;
 }
@@ -811,10 +820,10 @@
 }
 
 .summary-section h4 {
-  font-size: 1.2rem;
+  font-size: 2.4rem;
   color: #2a2a2a;
   font-weight: 500;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .summary-section ul {
@@ -824,12 +833,12 @@
 }
 
 .summary-section li {
-  font-size: 0.95rem;
+  font-size: 1.42rem;
   color: #666;
   font-weight: 300;
-  line-height: 1.7;
-  margin-bottom: 1rem;
-  padding-left: 1.5rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  padding-left: 2rem;
   position: relative;
 }
 
@@ -854,18 +863,18 @@
 }
 
 .advantage-highlight h3 {
-  font-size: 1.8rem;
+  font-size: 3.6rem;
   color: #1a1a1a;
   font-weight: 500;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.2rem;
   letter-spacing: -0.01em;
 }
 
 .advantage-highlight p {
-  font-size: 1.1rem;
+  font-size: 1.65rem;
   color: #555;
   font-weight: 300;
-  line-height: 1.8;
+  line-height: 1.9;
   max-width: 600px;
   margin: 0 auto;
 }
@@ -873,11 +882,11 @@
 .key-advantages {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 3rem 4rem;
+  gap: 4rem 6rem;
 }
 
 .advantage-card {
-  padding: 2.5rem;
+  padding: 3.5rem;
   background: #f8f8f8;
   border-radius: 12px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -889,18 +898,18 @@
 }
 
 .advantage-card h4 {
-  font-size: 1.3rem;
+  font-size: 2.6rem;
   color: #2a2a2a;
   font-weight: 500;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   letter-spacing: -0.01em;
 }
 
 .advantage-card p {
-  font-size: 0.95rem;
+  font-size: 1.42rem;
   color: #666;
   font-weight: 300;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 /* 响应式设计 - 新增sections */

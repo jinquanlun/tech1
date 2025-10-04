@@ -5,10 +5,15 @@ import '../styles/DetailPage.css';
 function PEFDetailPage() {
   const navigate = useNavigate();
 
+  const handleBack = () => {
+    // 回到主页，但会到达技术展示页面（第二页）PEF部分而不是最后一页
+    navigate('/', { state: { targetSection: 'pef' } });
+  };
+
   return (
     <div className="detail-page-container">
       <nav className="detail-nav">
-        <button onClick={() => navigate('/')} className="back-btn">←</button>
+        <button onClick={handleBack} className="back-btn">←</button>
       </nav>
 
       <main className="detail-content">
