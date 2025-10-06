@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import OptimizedImage from '../components/common/OptimizedImage';
 import '../styles/pages/DetailPage.css';
 
 function HPHDetailPage() {
@@ -368,7 +369,7 @@ function HPHDetailPage() {
               <h3>豆奶纳米破碎对比</h3>
               <p>纳米破碎后的豆奶与普通豆奶相比，在稳定性、口感和营养价值方面都有显著改善。</p>
               <div className="test-charts">
-                <img src="/images/hph-tech/soymilk-comparison.png" alt="豆奶纳米破碎对比" />
+                <OptimizedImage src="/images/hph-tech/soymilk-comparison.png" alt="豆奶纳米破碎对比" />
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { hphCategories, pefCategories } from '../config/techCategories';
 import '../styles/pages/TechShowcasePage.css';
@@ -250,17 +250,17 @@ const TechShowcasePage: React.FC = () => {
     setPefSelectedCategory(null);
   };
 
-  const navigateUp = () => {
+  const navigateUp = useCallback(() => {
     if (focusedSection === 'pef') {
       switchFocus('hph');
     }
-  };
+  }, [focusedSection]);
 
-  const navigateDown = () => {
+  const navigateDown = useCallback(() => {
     if (focusedSection === 'hph') {
       switchFocus('pef');
     }
-  };
+  }, [focusedSection]);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
@@ -294,7 +294,7 @@ const TechShowcasePage: React.FC = () => {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [focusedSection, scrolling, hphShowCategory, pefShowCategory]);
+  }, [focusedSection, scrolling, hphShowCategory, pefShowCategory, navigateUp, navigateDown]);
 
   return (
     <div className="skw-pages">

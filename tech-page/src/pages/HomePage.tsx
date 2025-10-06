@@ -1,5 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
+import {
+  Scene,
+  PerspectiveCamera,
+  WebGLRenderer,
+  Group,
+  LineSegments,
+  Object3D,
+  CylinderGeometry,
+  EdgesGeometry,
+  LineBasicMaterial,
+  OctahedronGeometry,
+  MeshPhongMaterial,
+  Mesh,
+  DirectionalLight
+} from 'three';
 import '../styles/pages/HomePage.css';
 
 const HomePage: React.FC = () => {
@@ -8,15 +22,15 @@ const HomePage: React.FC = () => {
   const [swipeCount, setSwipeCount] = useState(0);
   const lastScrollTime = useRef(0);
   const sceneRef = useRef<{
-    scene?: THREE.Scene;
-    camera?: THREE.PerspectiveCamera;
-    renderer?: THREE.WebGLRenderer;
+    scene?: Scene;
+    camera?: PerspectiveCamera;
+    renderer?: WebGLRenderer;
     composer?: any;
-    cubeGroup?: THREE.Group;
-    ring0?: THREE.LineSegments;
-    ring1?: THREE.LineSegments;
-    ring2?: THREE.LineSegments;
-    cylinder?: THREE.LineSegments;
+    cubeGroup?: Group;
+    ring0?: LineSegments;
+    ring1?: LineSegments;
+    ring2?: LineSegments;
+    cylinder?: LineSegments;
     animationId?: number;
   }>({});
 
@@ -24,9 +38,9 @@ const HomePage: React.FC = () => {
     if (!canvasRef.current) return;
 
     // Initialize scene
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, (window.innerWidth / 2) / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, alpha: true });
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(75, (window.innerWidth / 2) / window.innerHeight, 0.1, 1000);
+    const renderer = new WebGLRenderer({ canvas: canvasRef.current, alpha: true });
 
     // Set canvas to proper size to maintain aspect ratio
     const canvasWidth = window.innerWidth / 2;
@@ -36,14 +50,14 @@ const HomePage: React.FC = () => {
     renderer.setClearColor(0x000000, 0);
 
     // Create groups
-    const cubeGroup = new THREE.Group();
+    const cubeGroup = new Group();
     scene.add(cubeGroup);
 
     // Create rings function
-    function makeRing(radius: number, parent: THREE.Object3D) {
-      const geometry = new THREE.CylinderGeometry(radius, radius, 0.1, 64);
-      const edges = new THREE.EdgesGeometry(geometry);
-      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xebe3c7 }));
+    function makeRing(radius: number, parent: Object3D) {
+      const geometry = new CylinderGeometry(radius, radius, 0.1, 64);
+      const edges = new EdgesGeometry(geometry);
+      const line = new LineSegments(edges, new LineBasicMaterial({ color: 0xebe3c7 }));
       parent.add(line);
       return line;
     }
@@ -54,25 +68,25 @@ const HomePage: React.FC = () => {
     const ring2 = makeRing(3.6, ring1);
 
     // Create octahedron (main globe)
-    const geometry = new THREE.OctahedronGeometry(2, 3);
-    const material = new THREE.MeshPhongMaterial({ color: 0x999999, opacity: 0.6, transparent: true });
-    const cube = new THREE.Mesh(geometry, material);
+    const geometry = new OctahedronGeometry(2, 3);
+    const material = new MeshPhongMaterial({ color: 0x999999, opacity: 0.6, transparent: true });
+    const cube = new Mesh(geometry, material);
     cubeGroup.add(cube);
 
-    const edges = new THREE.EdgesGeometry(geometry);
-    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xE5E4E2 }));
+    const edges = new EdgesGeometry(geometry);
+    const line = new LineSegments(edges, new LineBasicMaterial({ color: 0xE5E4E2 }));
     line.scale.set(1.1, 1.1, 1.1);
     cubeGroup.add(line);
 
     // Create cylinder
-    const cylinderGeometry = new THREE.CylinderGeometry(8, 8, 1000, 3);
-    const cylinderEdges = new THREE.EdgesGeometry(cylinderGeometry);
-    const cylinder = new THREE.LineSegments(cylinderEdges, new THREE.LineBasicMaterial({ color: 0x888888 }));
+    const cylinderGeometry = new CylinderGeometry(8, 8, 1000, 3);
+    const cylinderEdges = new EdgesGeometry(cylinderGeometry);
+    const cylinder = new LineSegments(cylinderEdges, new LineBasicMaterial({ color: 0x888888 }));
     cylinder.rotation.set(Math.PI / 2, 0, 0);
     scene.add(cylinder);
 
     // Add lighting
-    const light = new THREE.DirectionalLight(0xFFFFFF, 1);
+    const light = new DirectionalLight(0xFFFFFF, 1);
     scene.add(light);
 
     // Position camera

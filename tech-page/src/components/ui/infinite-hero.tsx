@@ -1,6 +1,15 @@
 
 import { useEffect, useRef } from 'react';
-import * as THREE from 'three';
+import {
+  Mesh,
+  PlaneGeometry,
+  RawShaderMaterial,
+  WebGLRenderer,
+  Scene,
+  PerspectiveCamera,
+  Clock,
+  Vector3
+} from 'three';
 
 const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize = 256, speed = 0.5 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -10,7 +19,7 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
     // Plane class
     class Plane {
       uniforms: any;
-      mesh: THREE.Mesh;
+      mesh: Mesh;
       time: number;
 
       constructor() {
@@ -22,9 +31,9 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
       }
 
       createMesh() {
-        return new THREE.Mesh(
-          new THREE.PlaneGeometry(planeSize, planeSize, planeSize, planeSize),
-          new THREE.RawShaderMaterial({
+        return new Mesh(
+          new PlaneGeometry(planeSize, planeSize, planeSize, planeSize),
+          new RawShaderMaterial({
             uniforms: this.uniforms,
             vertexShader: `
               #define GLSLIFY 1
@@ -156,10 +165,10 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
     }
 
     // Three.js setup
-    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current!, antialias: false });
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-    const clock = new THREE.Clock();
+    const renderer = new WebGLRenderer({ canvas: canvasRef.current!, antialias: false });
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+    const clock = new Clock();
     const plane = new Plane();
 
     const resize = () => {
@@ -187,7 +196,7 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setClearColor(0x000000, 1.0); // Set solid black background
       camera.position.set(0, 16, cameraZ);
-      camera.lookAt(new THREE.Vector3(0, 28, 0));
+      camera.lookAt(new Vector3(0, 28, 0));
       scene.add(plane.mesh);
       window.addEventListener('resize', resize);
       resize();
@@ -220,24 +229,53 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
 
 export default function InfiniteHero() {
     return (
-        <div className="relative h-screen w-full overflow-hidden bg-black text-white">
+        <div style={{
+            position: 'relative',
+            height: '100vh',
+            width: '100%',
+            overflow: 'hidden',
+            backgroundColor: '#000000',
+            color: '#ffffff'
+        }}>
             {/* 背景动画 */}
-            <div className="absolute inset-0">
+            <div style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0
+            }}>
                 <GLSLHills />
             </div>
 
             {/* 文字内容 */}
-            <div className="relative z-10 flex h-screen w-full items-center justify-center px-6">
-                <div className="text-center max-w-6xl">
+            <div style={{
+                position: 'relative',
+                zIndex: 10,
+                display: 'flex',
+                height: '100vh',
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingLeft: '1.5rem',
+                paddingRight: '1.5rem'
+            }}>
+                <div style={{
+                    textAlign: 'center',
+                    maxWidth: '72rem'
+                }}>
                     <div
                         style={{
                             color: '#ffffff',
                             fontFamily: "'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif",
                             letterSpacing: '0.08em',
                             lineHeight: '2.4',
-                            textShadow: '0 2px 10px rgba(255, 255, 255, 0.1)'
+                            textShadow: '0 2px 10px rgba(255, 255, 255, 0.1)',
+                            fontSize: 'clamp(1.8rem, 2.5vw, 1.8rem)',
+                            fontWeight: 'normal',
+                            WebkitFontSmoothing: 'antialiased',
+                            MozOsxFontSmoothing: 'grayscale'
                         }}
-                        className="text-[clamp(1.8rem,2.5vw,1.8rem)] font-normal antialiased"
                     >
                         在PRISM瓴境双核技术的协同赋能下<br />
                         既攻克了 高品质短保产品 的多个瓶颈<br />
