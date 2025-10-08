@@ -1,6 +1,4 @@
 
-import React from 'react';
-
 /**
  * 优化的图片组件，自动支持WebP格式并提供PNG fallback
  * 使用HTML5 <picture> 元素实现浏览器自动选择最佳格式

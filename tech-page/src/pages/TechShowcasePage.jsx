@@ -1,13 +1,14 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { hphCategories, pefCategories } from '../config/techCategories.js';
 import '../styles/pages/TechShowcasePage.css';
 
-const TechShowcasePage = () => {
+const TechShowcasePage = ({ homeAnimationComplete }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [focusedSection, setFocusedSection] = useState('hph'); // 当前聚焦区域
+  const [focusedSection, setFocusedSection] = useState('pef'); // 默认聚焦PEF
   const [scrolling, setScrolling] = useState(false);
+  const [internalStep, setInternalStep] = useState(0); // 0: PEF显示, 1: HPH显示, 2: 可以继续向下滚动
 
   // 分别管理两个区域的状态
   const [hphSelectedCategory, setHphSelectedCategory] = useState(null);
@@ -17,13 +18,14 @@ const TechShowcasePage = () => {
 
   // 品类动画状态
   const [categoryAnimating, setCategoryAnimating] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0); // 用于重新触发动画
 
   // 视频播放状态
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [currentVideoTitle, setCurrentVideoTitle] = useState('');
 
-  const animTime = 1000;
+  const animTime = 2000; // 调慢动画速度
   const canvasRef = useRef(null);
 
   // 处理从详情页返回时的导航状态
@@ -220,19 +222,13 @@ const TechShowcasePage = () => {
     };
   }, [focusedSection]);
 
-  const switchFocus = (section) => {
-    // 现在允许在任何时候切换聚焦，因为区域独立
-    setScrolling(true);
-    setFocusedSection(section);
-
-    setTimeout(() => {
-      setScrolling(false);
-    }, animTime);
-  };
 
   const handleCategoryClick = (category, section) => {
     // 设置动画状态，禁用滚动
     setCategoryAnimating(true);
+
+    // 增加动画key来强制重新渲染和触发动画
+    setAnimationKey(prev => prev + 1);
 
     if (section === 'hph') {
       setHphSelectedCategory(category);
@@ -258,51 +254,60 @@ const TechShowcasePage = () => {
     setCategoryAnimating(false);
   };
 
-  const navigateUp = useCallback(() => {
-    if (focusedSection === 'pef') {
-      switchFocus('hph');
-    }
-  }, [focusedSection]);
-
-  const navigateDown = useCallback(() => {
-    if (focusedSection === 'hph') {
-      switchFocus('pef');
-    }
-  }, [focusedSection]);
 
   useEffect(() => {
     const handleWheel = (e) => {
       // 如果正在显示分类详情或正在动画中，禁用滚动切换
       if (scrolling || hphShowCategory || pefShowCategory || categoryAnimating) return;
 
-      e.preventDefault();
+      // 如果第一页动画还没完成，不处理
+      if (!homeAnimationComplete) return;
 
-      if (e.deltaY > 0) {
-        navigateDown();
-      } else {
-        navigateUp();
-      }
-    };
+      // 检查是否在TechShowcasePage区域内滚动
+      const techSection = document.querySelector('.tech-section');
+      if (!techSection) return;
 
-    const handleKeyDown = (e) => {
-      // 如果正在显示分类详情或正在动画中，禁用键盘导航
-      if (scrolling || hphShowCategory || pefShowCategory || categoryAnimating) return;
+      const rect = techSection.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
 
-      if (e.key === 'ArrowUp') { // Arrow Up
-        navigateUp();
-      } else if (e.key === 'ArrowDown') { // Arrow Down
-        navigateDown();
+      // 检查第二页是否完全占满屏幕（或接近占满）
+      const isInTechSection = rect.top <= 100 && rect.bottom >= windowHeight - 50;
+
+      if (isInTechSection) {
+        if (e.deltaY > 0) { // 向下滚动
+          if (internalStep === 0) {
+            // 从PEF切换到HPH
+            e.preventDefault();
+            e.stopPropagation();
+            setInternalStep(1);
+            setFocusedSection('hph');
+            setScrolling(true);
+            setTimeout(() => setScrolling(false), animTime);
+            return;
+          }
+          // internalStep === 1 时允许正常滚动到下一页
+        } else { // 向上滚动
+          if (internalStep === 1) {
+            // 从HPH切换回PEF
+            e.preventDefault();
+            e.stopPropagation();
+            setInternalStep(0);
+            setFocusedSection('pef');
+            setScrolling(true);
+            setTimeout(() => setScrolling(false), animTime);
+            return;
+          }
+          // internalStep === 0 时允许正常滚动到上一页
+        }
       }
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [focusedSection, scrolling, hphShowCategory, pefShowCategory, categoryAnimating, navigateUp, navigateDown]);
+  }, [homeAnimationComplete, internalStep, scrolling, hphShowCategory, pefShowCategory, categoryAnimating, animTime]);
 
   return (
     <div className="skw-pages">
@@ -362,23 +367,21 @@ const TechShowcasePage = () => {
             </div>
           </>
         ) : (
-          // HPH 分类详情页面
-          <div className="category-detail-overlay">
-            <div key={hphSelectedCategory.id} className="detail-page">
-              <div className="detail-page__half detail-page__half--left">
-                <div className="detail-page__skewed" style={{ backgroundColor: hphSelectedCategory.leftBgColor || '#17100f' }}>
-                  <div className="detail-page__content">
-                    <h2 style={{ color: hphSelectedCategory.bgColor }}>{hphSelectedCategory.title}</h2>
-                    <p>{hphSelectedCategory.description}</p>
-                  </div>
+          // HPH 分类详情页面 - 使用原来的结构和动画
+          <div key={`hph-${animationKey}`} className="detail-page">
+            <div className="detail-page__half detail-page__half--left">
+              <div className="detail-page__skewed" style={{ backgroundColor: hphSelectedCategory.leftBgColor || '#17100f' }}>
+                <div className="detail-page__content">
+                  <h2 style={{ color: hphSelectedCategory.bgColor }}>{hphSelectedCategory.title}</h2>
+                  <p>{hphSelectedCategory.description}</p>
                 </div>
               </div>
-              <div className="detail-page__half detail-page__half--right">
-                <div className="detail-page__skewed" style={{ backgroundColor: hphSelectedCategory.rightBg || '#2b1a17' }}>
-                  <div className="detail-page__content">
-                    <h3>应用详情</h3>
-                    <p>{hphSelectedCategory.details}</p>
-                  </div>
+            </div>
+            <div className="detail-page__half detail-page__half--right">
+              <div className="detail-page__skewed" style={{ backgroundColor: hphSelectedCategory.rightBg || '#2b1a17' }}>
+                <div className="detail-page__content">
+                  <h3>应用详情</h3>
+                  <p>{hphSelectedCategory.details}</p>
                 </div>
               </div>
             </div>
@@ -439,23 +442,21 @@ const TechShowcasePage = () => {
             </div>
           </>
         ) : (
-          // PEF 分类详情页面
-          <div className="category-detail-overlay">
-            <div key={pefSelectedCategory.id} className="detail-page">
-              <div className="detail-page__half detail-page__half--left">
-                <div className="detail-page__skewed" style={{ backgroundColor: pefSelectedCategory.leftBgColor || '#17100f' }}>
-                  <div className="detail-page__content">
-                    <h2 style={{ color: pefSelectedCategory.bgColor }}>{pefSelectedCategory.title}</h2>
-                    <p>{pefSelectedCategory.description}</p>
-                  </div>
+          // PEF 分类详情页面 - 使用原来的结构和动画
+          <div key={`pef-${animationKey}`} className="detail-page">
+            <div className="detail-page__half detail-page__half--left">
+              <div className="detail-page__skewed" style={{ backgroundColor: pefSelectedCategory.leftBgColor || '#17100f' }}>
+                <div className="detail-page__content">
+                  <h2 style={{ color: pefSelectedCategory.bgColor }}>{pefSelectedCategory.title}</h2>
+                  <p>{pefSelectedCategory.description}</p>
                 </div>
               </div>
-              <div className="detail-page__half detail-page__half--right">
-                <div className="detail-page__skewed" style={{ backgroundColor: pefSelectedCategory.rightBg || '#2b1a17' }}>
-                  <div className="detail-page__content">
-                    <h3>应用详情</h3>
-                    <p>{pefSelectedCategory.details}</p>
-                  </div>
+            </div>
+            <div className="detail-page__half detail-page__half--right">
+              <div className="detail-page__skewed" style={{ backgroundColor: pefSelectedCategory.rightBg || '#2b1a17' }}>
+                <div className="detail-page__content">
+                  <h3>应用详情</h3>
+                  <p>{pefSelectedCategory.details}</p>
                 </div>
               </div>
             </div>

@@ -15,7 +15,7 @@ import {
 } from 'three';
 import '../styles/pages/HomePage.css';
 
-const HomePage = () => {
+const HomePage = ({ onAnimationComplete }) => {
   const canvasRef = useRef(null);
   const [animationStage, setAnimationStage] = useState(0);
   const [swipeCount, setSwipeCount] = useState(0);
@@ -139,34 +139,85 @@ const HomePage = () => {
 
     window.addEventListener('resize', handleResize);
 
-    // Scroll animation logic - 只处理文字动画，不拦截页面切换
+    // 强力滚动阻止函数 - 在前两次滑动期间完全控制滚动
     function handleScroll(event) {
       const now = Date.now();
 
       // Throttle scrolling to prevent too fast transitions
       if (now - lastScrollTime.current < 300) {
+        // 如果还在前两次动画阶段，继续阻止滚动
+        if (swipeCount < 2) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+        }
         return;
       }
 
       if (event.deltaY > 0) { // Scrolling down
-        // 只在前两次滑动时更新动画和计数
+        // 前两次滑动：完全阻止页面滚动，只触发文字动画
         if (swipeCount < 2) {
+          // 强力阻止所有滚动行为
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+
           setSwipeCount(prev => prev + 1);
-          if (animationStage < 2) {
-            setAnimationStage(prev => prev + 1);
-          }
+          setAnimationStage(prev => {
+            const newStage = prev + 1;
+            // 当动画完成时通知父组件
+            if (newStage >= 2 && onAnimationComplete) {
+              setTimeout(() => {
+                onAnimationComplete(true);
+              }, 800); // 延迟通知确保动画完成
+            }
+            return newStage;
+          });
           lastScrollTime.current = now;
+          return; // 确保不执行后续逻辑
         }
-        // 不阻止默认滚动行为，让正常的页面切换发生
+        // 第三次及以后的滑动：允许正常页面滚动
       }
     }
 
-    window.addEventListener('wheel', handleScroll, { passive: true });
+    // 添加多层滚动阻止机制
+    const preventScroll = (e) => {
+      if (swipeCount < 2) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      }
+    };
+
+    // 使用多个事件监听器确保完全控制
+    window.addEventListener('wheel', handleScroll, { passive: false, capture: true });
+    window.addEventListener('scroll', preventScroll, { passive: false, capture: true });
+    document.addEventListener('wheel', preventScroll, { passive: false, capture: true });
+    document.addEventListener('scroll', preventScroll, { passive: false, capture: true });
+
+    // 物理阻止滚动 - 在前两次动画期间完全禁用body滚动
+    const updateBodyScroll = () => {
+      if (swipeCount < 2) {
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+      }
+    };
+
+    updateBodyScroll();
 
     // Cleanup function
     return () => {
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('wheel', handleScroll);
+      window.removeEventListener('wheel', handleScroll, { capture: true });
+      window.removeEventListener('scroll', preventScroll, { capture: true });
+      document.removeEventListener('wheel', preventScroll, { capture: true });
+      document.removeEventListener('scroll', preventScroll, { capture: true });
+      // 恢复页面滚动
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
       if (sceneRef.current.animationId) {
         cancelAnimationFrame(sceneRef.current.animationId);
       }
@@ -175,6 +226,17 @@ const HomePage = () => {
       }
     };
   }, [animationStage, swipeCount]);
+
+  // 专门处理滚动状态更新的useEffect
+  useEffect(() => {
+    if (swipeCount < 2) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+    }
+  }, [swipeCount]);
 
   return (
     <div className="homepage">

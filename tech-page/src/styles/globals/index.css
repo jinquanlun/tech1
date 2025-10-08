@@ -1,4 +1,7 @@
 
+/* 合并Google字体导入以减少网络请求 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+
 /* 站酷庆科黄油体字体 - Web字体版本 */
 @font-face {
   font-family: 'zcoolqingkehuangyouti';
