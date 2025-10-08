@@ -1,9 +1,27 @@
 import { useNavigate } from 'react-router-dom';
-import OptimizedImage from '../components/common/OptimizedImage';
+import { useEffect } from 'react';
+import OptimizedImage from '../components/common/OptimizedImage.jsx';
 import '../styles/pages/DetailPage.css';
 
 function HPHDetailPage() {
   const navigate = useNavigate();
+
+  // 确保页面加载时滚动到顶部
+  useEffect(() => {
+    // 使用多种方法确保滚动到顶部
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    // 延迟执行以确保覆盖其他滚动行为
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleBack = () => {
     // 回到主页，但会到达技术展示页面（第二页）而不是最后一页

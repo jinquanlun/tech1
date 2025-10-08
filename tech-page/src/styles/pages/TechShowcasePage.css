@@ -597,7 +597,7 @@
   left: 40px;
   bottom: 40px;
   background: transparent;
-  z-index: 100; /* 确保导航栏在最上层 */
+  z-index: 9100; /* 确保导航栏在品类详情之上 */
   font-family: "Heiti SC", "黑体-简", -apple-system, BlinkMacSystemFont, "Chakra Petch", sans-serif !important;
   pointer-events: none;
 }
@@ -685,7 +685,7 @@
   left: 0;
   width: 100%;
   height: 100vh;
-  z-index: 50; /* 降低z-index，确保导航栏可见 */
+  z-index: 9000; /* 提高z-index，确保覆盖所有页面内容 */
   background: #1e1c21;
   animation: slideInFromRight 0.8s cubic-bezier(0.770, 0.000, 0.175, 1.000);
 }

@@ -12,15 +12,15 @@ import {
 } from 'three';
 
 const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize = 256, speed = 0.5 }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     // Plane class
     class Plane {
-      uniforms: any;
-      mesh: Mesh;
-      time: number;
+      
+      
+      
 
       constructor() {
         this.uniforms = {
@@ -159,13 +159,13 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
         );
       }
 
-      render(time: number) {
+      render(time) {
         this.uniforms.time.value += time * this.time;
       }
     }
 
     // Three.js setup
-    const renderer = new WebGLRenderer({ canvas: canvasRef.current!, antialias: false });
+    const renderer = new WebGLRenderer({ canvas: canvasRef.current, antialias: false });
     const scene = new Scene();
     const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
     const clock = new Clock();

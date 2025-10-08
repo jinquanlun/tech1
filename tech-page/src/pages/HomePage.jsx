@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Scene,
   PerspectiveCamera,
   WebGLRenderer,
   Group,
   LineSegments,
-  Object3D,
   CylinderGeometry,
   EdgesGeometry,
   LineBasicMaterial,
@@ -16,23 +15,23 @@ import {
 } from 'three';
 import '../styles/pages/HomePage.css';
 
-const HomePage: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+const HomePage = () => {
+  const canvasRef = useRef(null);
   const [animationStage, setAnimationStage] = useState(0);
   const [swipeCount, setSwipeCount] = useState(0);
   const lastScrollTime = useRef(0);
-  const sceneRef = useRef<{
-    scene?: Scene;
-    camera?: PerspectiveCamera;
-    renderer?: WebGLRenderer;
-    composer?: any;
-    cubeGroup?: Group;
-    ring0?: LineSegments;
-    ring1?: LineSegments;
-    ring2?: LineSegments;
-    cylinder?: LineSegments;
-    animationId?: number;
-  }>({});
+  const sceneRef = useRef({
+    scene: null,
+    camera: null,
+    renderer: null,
+    composer: null,
+    cubeGroup: null,
+    ring0: null,
+    ring1: null,
+    ring2: null,
+    cylinder: null,
+    animationId: null
+  });
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -54,7 +53,7 @@ const HomePage: React.FC = () => {
     scene.add(cubeGroup);
 
     // Create rings function
-    function makeRing(radius: number, parent: Object3D) {
+    function makeRing(radius, parent) {
       const geometry = new CylinderGeometry(radius, radius, 0.1, 64);
       const edges = new EdgesGeometry(geometry);
       const line = new LineSegments(edges, new LineBasicMaterial({ color: 0xebe3c7 }));
@@ -121,7 +120,7 @@ const HomePage: React.FC = () => {
       sceneRef.current.cylinder.rotation.z += 0.0015;
 
       sceneRef.current.animationId = requestAnimationFrame(animate);
-      sceneRef.current.renderer.render(sceneRef.current.scene!, sceneRef.current.camera!);
+      sceneRef.current.renderer.render(sceneRef.current.scene, sceneRef.current.camera);
     }
 
     animate();
@@ -141,7 +140,7 @@ const HomePage: React.FC = () => {
     window.addEventListener('resize', handleResize);
 
     // Scroll animation logic - 只处理文字动画，不拦截页面切换
-    function handleScroll(event: WheelEvent) {
+    function handleScroll(event) {
       const now = Date.now();
 
       // Throttle scrolling to prevent too fast transitions

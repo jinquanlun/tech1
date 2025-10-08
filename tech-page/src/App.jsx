@@ -1,8 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
-import MainPage from './pages/MainPage'
-import HPHDetailPage from './pages/HPHDetailPage'
-import PEFDetailPage from './pages/PEFDetailPage'
-import ScrollToTop from './components/common/ScrollToTop'
+import MainPage from './pages/MainPage.jsx'
+import HPHDetailPage from './pages/HPHDetailPage.jsx'
+import PEFDetailPage from './pages/PEFDetailPage.jsx'
+import ScrollToTop from './components/common/ScrollToTop.jsx'
 
 function App() {
   return (

@@ -1,17 +1,7 @@
 // 技术分类数据配置
 
-export interface TechCategory {
-  id: number;
-  title: string;
-  bgColor: string;
-  leftBgColor: string;
-  rightBg: string;
-  description: string;
-  details: string;
-}
-
 // HPH 纳米破碎·动态灭菌技术分类
-export const hphCategories: TechCategory[] = [
+export const hphCategories = [
   {
     id: 1,
     title: "饮品与酱料",
@@ -69,7 +59,7 @@ export const hphCategories: TechCategory[] = [
 ];
 
 // PEF 超冰温·脉冲电场保鲜技术分类
-export const pefCategories: TechCategory[] = [
+export const pefCategories = [
   {
     id: 1,
     title: "高端生鲜肉禽",

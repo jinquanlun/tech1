@@ -1,17 +1,11 @@
-import React from 'react';
 
-interface OptimizedImageProps {
-  src: string;
-  alt: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
+import React from 'react';
 
 /**
  * 优化的图片组件，自动支持WebP格式并提供PNG fallback
  * 使用HTML5 <picture> 元素实现浏览器自动选择最佳格式
  */
-const OptimizedImage: React.FC<OptimizedImageProps> = ({ src, alt, className, style }) => {
+const OptimizedImage = ({ src, alt, className, style }) => {
   // 生成WebP版本的路径（将.png替换为.webp）
   const webpSrc = src.replace(/\.png$/i, '.webp');
 

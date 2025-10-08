@@ -1,19 +1,22 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { hphCategories, pefCategories } from '../config/techCategories';
+import { hphCategories, pefCategories } from '../config/techCategories.js';
 import '../styles/pages/TechShowcasePage.css';
 
-const TechShowcasePage: React.FC = () => {
+const TechShowcasePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [focusedSection, setFocusedSection] = useState<'hph' | 'pef'>('hph'); // 当前聚焦区域
+  const [focusedSection, setFocusedSection] = useState('hph'); // 当前聚焦区域
   const [scrolling, setScrolling] = useState(false);
 
   // 分别管理两个区域的状态
-  const [hphSelectedCategory, setHphSelectedCategory] = useState<any>(null);
+  const [hphSelectedCategory, setHphSelectedCategory] = useState(null);
   const [hphShowCategory, setHphShowCategory] = useState(false);
-  const [pefSelectedCategory, setPefSelectedCategory] = useState<any>(null);
+  const [pefSelectedCategory, setPefSelectedCategory] = useState(null);
   const [pefShowCategory, setPefShowCategory] = useState(false);
+
+  // 品类动画状态
+  const [categoryAnimating, setCategoryAnimating] = useState(false);
 
   // 视频播放状态
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -21,11 +24,11 @@ const TechShowcasePage: React.FC = () => {
   const [currentVideoTitle, setCurrentVideoTitle] = useState('');
 
   const animTime = 1000;
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef(null);
 
   // 处理从详情页返回时的导航状态
   useEffect(() => {
-    const state = location.state as { targetSection?: 'hph' | 'pef' } | null;
+    const state = location.state;
     if (state?.targetSection) {
       setFocusedSection(state.targetSection);
       // 延迟清除状态，确保组件已经更新
@@ -43,8 +46,8 @@ const TechShowcasePage: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationId: number;
-    let particles: any[] = [];
+    let animationId;
+    let particles = [];
     let onMobile = window.innerWidth < 768;
 
     // 设置canvas尺寸
@@ -70,12 +73,7 @@ const TechShowcasePage: React.FC = () => {
 
     // 粒子类
     class Particle {
-      x: number;
-      y: number;
-      vy: number;
-      radius: number;
-
-      constructor(index: number) {
+      constructor(index) {
         // 按照原始代码的分布方式
         this.x = index * (window.innerWidth / particleNum);
         this.y = Math.random() * window.innerHeight;
@@ -121,7 +119,7 @@ const TechShowcasePage: React.FC = () => {
     };
 
     // 粒子间距离连线
-    const distance = (p1: Particle, p2: Particle) => {
+    const distance = (p1, p2) => {
       if (!ctx) return;
       const dx = p1.x - p2.x;
       const dy = p1.y - p2.y;
@@ -222,7 +220,7 @@ const TechShowcasePage: React.FC = () => {
     };
   }, [focusedSection]);
 
-  const switchFocus = (section: 'hph' | 'pef') => {
+  const switchFocus = (section) => {
     // 现在允许在任何时候切换聚焦，因为区域独立
     setScrolling(true);
     setFocusedSection(section);
@@ -232,7 +230,10 @@ const TechShowcasePage: React.FC = () => {
     }, animTime);
   };
 
-  const handleCategoryClick = (category: any, section: 'hph' | 'pef') => {
+  const handleCategoryClick = (category, section) => {
+    // 设置动画状态，禁用滚动
+    setCategoryAnimating(true);
+
     if (section === 'hph') {
       setHphSelectedCategory(category);
       setHphShowCategory(true);
@@ -240,6 +241,11 @@ const TechShowcasePage: React.FC = () => {
       setPefSelectedCategory(category);
       setPefShowCategory(true);
     }
+
+    // 动画持续时间后恢复滚动（根据CSS动画时间）
+    setTimeout(() => {
+      setCategoryAnimating(false);
+    }, 1000); // 匹配CSS动画时间 0.8s
   };
 
   const handleMainPageClick = () => {
@@ -248,6 +254,8 @@ const TechShowcasePage: React.FC = () => {
     setHphSelectedCategory(null);
     setPefShowCategory(false);
     setPefSelectedCategory(null);
+    // 重置动画状态
+    setCategoryAnimating(false);
   };
 
   const navigateUp = useCallback(() => {
@@ -263,9 +271,9 @@ const TechShowcasePage: React.FC = () => {
   }, [focusedSection]);
 
   useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      // 如果正在显示分类详情，禁用滚动切换
-      if (scrolling || hphShowCategory || pefShowCategory) return;
+    const handleWheel = (e) => {
+      // 如果正在显示分类详情或正在动画中，禁用滚动切换
+      if (scrolling || hphShowCategory || pefShowCategory || categoryAnimating) return;
 
       e.preventDefault();
 
@@ -276,9 +284,9 @@ const TechShowcasePage: React.FC = () => {
       }
     };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // 如果正在显示分类详情，禁用键盘导航
-      if (scrolling || hphShowCategory || pefShowCategory) return;
+    const handleKeyDown = (e) => {
+      // 如果正在显示分类详情或正在动画中，禁用键盘导航
+      if (scrolling || hphShowCategory || pefShowCategory || categoryAnimating) return;
 
       if (e.key === 'ArrowUp') { // Arrow Up
         navigateUp();
@@ -294,7 +302,7 @@ const TechShowcasePage: React.FC = () => {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [focusedSection, scrolling, hphShowCategory, pefShowCategory, navigateUp, navigateDown]);
+  }, [focusedSection, scrolling, hphShowCategory, pefShowCategory, categoryAnimating, navigateUp, navigateDown]);
 
   return (
     <div className="skw-pages">
@@ -412,7 +420,7 @@ const TechShowcasePage: React.FC = () => {
                     实现食材15天保持一级鲜度。
                   </p>
                   <p className="skw-page__description">
-                  其“鲜到鲜”技术在不改变食材形态的前提下，
+                  其"鲜到鲜"技术在不改变食材形态的前提下，
                     <br />
                     有效抑制冰晶生成，减少汁液流失，
                     <br />
