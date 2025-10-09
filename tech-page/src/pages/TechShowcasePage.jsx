@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { hphCategories, pefCategories } from '../config/techCategories.js';
 import '../styles/pages/TechShowcasePage.css';
@@ -40,17 +40,33 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
     }
   }, [location.state, navigate, location.pathname]);
 
-  // 粒子动画相关（内存优化版）
+  // 高性能粒子动画系统（对象池+FPS监控+内存优化）
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    // 尝试使用OffscreenCanvas（如果支持）进行后台渲染
+    const ctx = canvas.getContext('2d', {
+      alpha: true,
+      desynchronized: true, // 提高性能
+      willReadFrequently: false // 优化写入性能
+    });
     if (!ctx) return;
 
     let animationId;
     let particles = [];
     let onMobile = window.innerWidth < 768;
+
+    // 渲染控制优化
+    let isTabVisible = true;
+    let lastRenderTime = 0;
+    const TARGET_FRAME_TIME = 1000 / 60; // 60FPS目标
+
+    // 性能监控变量
+    let fps = 60;
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let fpsCheckInterval = 30; // 每30帧检查一次FPS
 
     // 内存优化: 缓存颜色字符串避免重复创建
     const PARTICLE_OUTER_COLOR = "rgba(255,255,255,0.95)";
@@ -58,9 +74,48 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
     const BG_COLOR_HPH = "rgba(10, 10, 10, 0.3)";
     const BG_COLOR_PEF = "rgba(26, 29, 36, 0.3)";
 
+    // 页面可见性检测优化
+    const handleVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+      if (!isTabVisible) {
+        // 页面不可见时降低渲染频率
+        cancelAnimationFrame(animationId);
+      } else {
+        // 页面重新可见时恢复渲染
+        draw();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // 对象池：预分配连线对象避免GC
+    const connectionPool = [];
+    const MAX_CONNECTIONS = 200; // 最大连线数
+    let activeConnections = 0;
+
+    // 初始化连线对象池
+    for (let i = 0; i < MAX_CONNECTIONS; i++) {
+      connectionPool.push({
+        x1: 0, y1: 0, x2: 0, y2: 0,
+        opacity: 0, lineWidth: 0, active: false
+      });
+    }
+
+    // 预计算缓存系统（借鉴WebGL项目思路）
+    const mathCache = {
+      sin: new Float32Array(360), // 预计算sin值
+      cos: new Float32Array(360), // 预计算cos值
+      sqrt: new Map(), // 缓存sqrt计算结果
+    };
+
+    // 初始化数学函数缓存
+    for (let i = 0; i < 360; i++) {
+      const rad = (i * Math.PI) / 180;
+      mathCache.sin[i] = Math.sin(rad);
+      mathCache.cos[i] = Math.cos(rad);
+    }
+
     // 缓存常用计算结果
     let cachedTime = 0;
-    let lastTimeUpdate = 0;
 
     // 设置canvas尺寸
     const resizeCanvas = () => {
@@ -73,20 +128,56 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
 
     resizeCanvas();
 
-    // 恢复原始粒子数量，保持视觉效果
-    let particleNum = onMobile ? Math.floor(window.innerWidth / 130) : Math.floor(window.innerWidth / 70);
-    // 设置合理的粒子数量范围，保持视觉效果但避免性能问题
-    if (particleNum < (onMobile ? 10 : 20)) particleNum = onMobile ? 10 : 20;
-    if (particleNum > (onMobile ? 18 : 35)) particleNum = onMobile ? 18 : 35;
+    // 动态粒子数量管理
+    const getOptimalParticleCount = (targetFps = 30) => {
+      const base = onMobile ? window.innerWidth / 130 : window.innerWidth / 70;
+      let optimal = Math.floor(base);
 
-    // 增大连接距离以增强连线效果
-    let minDist = window.innerWidth / 5; // 从1/6改为1/5，增大连接距离
-    if (minDist < 200) minDist = 200; // 提高最小距离
-    else if (minDist > 280) minDist = 280; // 提高最大距离
+      // 根据FPS动态调整
+      if (fps < targetFps) {
+        optimal = Math.max(optimal * 0.7, onMobile ? 8 : 15);
+      } else if (fps > 50) {
+        optimal = Math.min(optimal * 1.2, onMobile ? 25 : 45);
+      }
 
-    // 移除未使用的鼠标事件变量
+      // 设置边界
+      if (optimal < (onMobile ? 8 : 15)) optimal = onMobile ? 8 : 15;
+      if (optimal > (onMobile ? 25 : 45)) optimal = onMobile ? 25 : 45;
 
-    // 最简化粒子类（保持原始效果）
+      return Math.floor(optimal);
+    };
+
+    let particleNum = getOptimalParticleCount();
+
+    // 自适应连接距离
+    const getOptimalDistance = () => {
+      const base = window.innerWidth / 5;
+      const fpsMultiplier = fps < 30 ? 0.8 : (fps > 50 ? 1.2 : 1.0);
+      let dist = base * fpsMultiplier;
+
+      if (dist < 180) dist = 180;
+      else if (dist > 300) dist = 300;
+      return dist;
+    };
+
+    let minDist = getOptimalDistance();
+
+
+    // 高效缓存的sqrt函数（避免重复计算）
+    const cachedSqrt = (value) => {
+      const key = Math.round(value * 100); // 精度到小数点后2位
+      if (!mathCache.sqrt.has(key)) {
+        mathCache.sqrt.set(key, Math.sqrt(value));
+        // 限制缓存大小，避免内存泄漏
+        if (mathCache.sqrt.size > 1000) {
+          const firstKey = mathCache.sqrt.keys().next().value;
+          mathCache.sqrt.delete(firstKey);
+        }
+      }
+      return mathCache.sqrt.get(key);
+    };
+
+    // 优化的粒子类（使用缓存数学函数）
     class Particle {
       constructor(index) {
         this.x = index * (window.innerWidth / particleNum);
@@ -96,23 +187,13 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
         this.innerRadius = 0.9;
         this.intX = Math.round(this.x);
         this.intY = Math.round(this.y);
+
+        // 预计算一些常用值
+        this.radiusPi2 = Math.PI * 2;
+        this.innerRadiusPi2 = Math.PI * 2;
       }
 
-      draw() {
-        if (!ctx) return;
-
-        // 保持原始双圆效果
-        ctx.fillStyle = PARTICLE_OUTER_COLOR;
-        ctx.beginPath();
-        ctx.arc(this.intX, this.intY, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = PARTICLE_INNER_COLOR;
-        ctx.beginPath();
-        ctx.arc(this.intX, this.intY, this.innerRadius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
+      // 移除draw方法，使用批量绘制提高性能
       updatePosition() {
         this.intX = Math.round(this.x);
         this.intY = Math.round(this.y);
@@ -139,12 +220,7 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
       ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
     };
 
-    // 注释：distance函数已内联到主循环中以优化性能
-
     // 优化的更新函数 - 减少计算频率
-    let frameCount = 0;
-    let connectionUpdateFrame = 0;
-    const connections = []; // 缓存连接状态
 
     const update = () => {
       const now = Date.now();
@@ -189,16 +265,20 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
         p.updatePosition();
       }
 
-      // 简化连线计算 - 移除帧数限制，恢复原始流畅度
-      connectionUpdateFrame++;
-      connections.length = 0;
-
-      const len = particles.length;
+      // 高性能连线计算：使用对象池避免GC
+      activeConnections = 0;
       const maxDistSquared = minDist * minDist;
 
-      for (let i = 0; i < len; i++) {
+      // 重置对象池
+      for (let i = 0; i < connectionPool.length; i++) {
+        connectionPool[i].active = false;
+      }
+
+      const len = particles.length;
+      for (let i = 0; i < len && activeConnections < MAX_CONNECTIONS; i++) {
         const p1 = particles[i];
-        for (let j = i + 1; j < len; j++) {
+
+        for (let j = i + 1; j < len && activeConnections < MAX_CONNECTIONS; j++) {
           const p2 = particles[j];
 
           const dx = p1.x - p2.x;
@@ -206,32 +286,51 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
           const distSquared = dx * dx + dy * dy;
 
           if (distSquared <= maxDistSquared) {
-            const dist = Math.sqrt(distSquared);
+            const conn = connectionPool[activeConnections];
+            const dist = cachedSqrt(distSquared); // 使用缓存的sqrt
             const distRatio = 1 - dist / minDist;
-            const opacity = Math.max(0.3, 0.9 * distRatio);
-            const lineWidth = Math.max(1.0, 2.0 * distRatio);
 
-            connections.push({
-              x1: p1.intX,
-              y1: p1.intY,
-              x2: p2.intX,
-              y2: p2.intY,
-              opacity: Math.round(opacity * 100) / 100,
-              lineWidth: lineWidth
-            });
+            // 复用对象而非创建新对象
+            conn.x1 = p1.intX;
+            conn.y1 = p1.intY;
+            conn.x2 = p2.intX;
+            conn.y2 = p2.intY;
+            conn.opacity = Math.max(0.3, 0.9 * distRatio);
+            conn.lineWidth = Math.max(1.0, 2.0 * distRatio);
+            conn.active = true;
+
+            activeConnections++;
           }
         }
       }
     };
 
-    // 高度优化的主绘制循环
+    // 高度优化的主绘制循环（智能渲染控制）
     const draw = () => {
+      const currentTime = performance.now();
+
+      // 智能帧率控制（借鉴WebGL项目思路）
+      if (!isTabVisible) {
+        // 页面不可见时降低渲染频率
+        setTimeout(() => {
+          if (isTabVisible) draw();
+        }, 100);
+        return;
+      }
+
+      // 限制渲染频率，避免不必要的高频渲染
+      if (currentTime - lastRenderTime < TARGET_FRAME_TIME) {
+        animationId = requestAnimationFrame(draw);
+        return;
+      }
+      lastRenderTime = currentTime;
+
       paintCanvas();
 
-      // 恢复原始连线绘制方式 - 每条线单独绘制以保持完整效果
-      if (connections.length > 0) {
-        for (let i = 0; i < connections.length; i++) {
-          const conn = connections[i];
+      // 使用对象池绘制连线 - 只绘制活跃连接
+      for (let i = 0; i < activeConnections; i++) {
+        const conn = connectionPool[i];
+        if (conn.active) {
           ctx.beginPath();
           ctx.strokeStyle = `rgba(255,255,255,${conn.opacity})`;
           ctx.lineWidth = conn.lineWidth;
@@ -260,22 +359,39 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
       }
       ctx.fill();
 
+      // FPS监控和性能调优
+      frameCount++;
+      if (frameCount >= fpsCheckInterval) {
+        const currentTime = performance.now();
+        const deltaTime = currentTime - lastTime;
+        fps = Math.round((frameCount * 1000) / deltaTime);
+        frameCount = 0;
+        lastTime = currentTime;
+
+        // 自适应性能调整
+        const newParticleNum = getOptimalParticleCount();
+        if (newParticleNum !== particleNum) {
+          particleNum = newParticleNum;
+          initParticles();
+        }
+
+        // 动态调整连接距离
+        minDist = getOptimalDistance();
+
+      }
+
       update();
       animationId = requestAnimationFrame(draw);
     };
 
-    // 移除鼠标事件处理，简化性能
-
+    // 智能resize处理
     const handleResize = () => {
       onMobile = window.innerWidth < 768;
       resizeCanvas();
-      // 使用原始粒子数量计算
-      particleNum = onMobile ? Math.floor(window.innerWidth / 130) : Math.floor(window.innerWidth / 70);
-      if (particleNum < (onMobile ? 10 : 20)) particleNum = onMobile ? 10 : 20;
-      if (particleNum > (onMobile ? 18 : 35)) particleNum = onMobile ? 18 : 35;
-      minDist = window.innerWidth / 5;
-      if (minDist < 200) minDist = 200;
-      else if (minDist > 280) minDist = 280;
+
+      // 重新计算最优参数
+      particleNum = getOptimalParticleCount();
+      minDist = getOptimalDistance();
       initParticles();
     };
 
@@ -285,7 +401,7 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
     // 开始动画
     draw();
 
-    // 强化的清理函数（防止内存泄漏）
+    // 强化的清理函数（防止内存泄漏+缓存清理）
     return () => {
       // 清理动画
       if (animationId) {
@@ -295,10 +411,17 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
 
       // 清理事件监听
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
 
       // 清理粒子数组
       particles.length = 0;
       particles = null;
+
+      // 清理对象池
+      connectionPool.length = 0;
+
+      // 清理数学缓存
+      mathCache.sqrt.clear();
 
       // 清理Canvas上下文
       if (ctx) {
@@ -632,4 +755,4 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
   );
 };
 
-export default TechShowcasePage;
+export default memo(TechShowcasePage);

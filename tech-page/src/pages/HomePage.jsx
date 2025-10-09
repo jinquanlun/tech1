@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback, memo } from 'react';
 import {
   Scene,
   PerspectiveCamera,
@@ -20,6 +20,7 @@ const HomePage = ({ onAnimationComplete }) => {
   const [animationStage, setAnimationStage] = useState(0);
   const [swipeCount, setSwipeCount] = useState(0);
   const lastScrollTime = useRef(0);
+  const isInitialized = useRef(false);
   const sceneRef = useRef({
     scene: null,
     camera: null,
@@ -33,13 +34,54 @@ const HomePage = ({ onAnimationComplete }) => {
     animationId: null
   });
 
-  useEffect(() => {
-    if (!canvasRef.current) return;
+  // Memoize geometry creation with balanced optimization
+  const geometries = useMemo(() => {
+    console.log('Creating balanced geometries...');
+
+    // Moderate optimization - maintain visual quality while reducing memory
+    const cylinderGeom = new CylinderGeometry(8, 8, 1000, 8); // Slightly reduced segments
+    const octahedronGeom = new OctahedronGeometry(2, 2); // Reduced from 3 to 2 for balance
+
+    // Individual ring geometries with moderate reduction
+    const ringGeom1 = new CylinderGeometry(3, 3, 0.1, 32); // Reduced from 64 to 32
+    const ringGeom2 = new CylinderGeometry(3.3, 3.3, 0.1, 32);
+    const ringGeom3 = new CylinderGeometry(3.6, 3.6, 0.1, 32);
+
+    return {
+      cylinder: cylinderGeom,
+      octahedron: octahedronGeom,
+      ring1: ringGeom1,
+      ring2: ringGeom2,
+      ring3: ringGeom3
+    };
+  }, []);
+
+  // Memoize materials to avoid recreating - create separate materials for each use
+  const materials = useMemo(() => ({
+    ringLine1: new LineBasicMaterial({ color: 0xebe3c7 }),
+    ringLine2: new LineBasicMaterial({ color: 0xebe3c7 }),
+    ringLine3: new LineBasicMaterial({ color: 0xebe3c7 }),
+    octahedronMesh: new MeshPhongMaterial({ color: 0x999999, opacity: 0.6, transparent: true }),
+    octahedronLine: new LineBasicMaterial({ color: 0xE5E4E2 }),
+    cylinderLine: new LineBasicMaterial({ color: 0x888888 })
+  }), []);
+
+  // Optimized scene initialization function
+  const initializeScene = useCallback(() => {
+    if (!canvasRef.current || isInitialized.current) return;
+
+    console.log('Initializing Three.js scene...');
+    const startTime = performance.now();
 
     // Initialize scene
     const scene = new Scene();
     const camera = new PerspectiveCamera(75, (window.innerWidth / 2) / window.innerHeight, 0.1, 1000);
-    const renderer = new WebGLRenderer({ canvas: canvasRef.current, alpha: true });
+    const renderer = new WebGLRenderer({
+      canvas: canvasRef.current,
+      alpha: true,
+      antialias: false, // Disable for better performance
+      powerPreference: "high-performance"
+    });
 
     // Set canvas to proper size to maintain aspect ratio
     const canvasWidth = window.innerWidth / 2;
@@ -47,40 +89,41 @@ const HomePage = ({ onAnimationComplete }) => {
 
     renderer.setSize(canvasWidth, canvasHeight);
     renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Restore better pixel ratio for quality
+
+    // Additional performance settings
+    renderer.shadowMap.enabled = false; // Disable shadows to save memory
+    renderer.outputColorSpace = 'srgb'; // Modern Three.js color space setting
 
     // Create groups
     const cubeGroup = new Group();
     scene.add(cubeGroup);
 
-    // Create rings function
-    function makeRing(radius, parent) {
-      const geometry = new CylinderGeometry(radius, radius, 0.1, 64);
+    // Create rings using individual geometries for proper visual quality
+    function makeRing(geometry, material, parent) {
       const edges = new EdgesGeometry(geometry);
-      const line = new LineSegments(edges, new LineBasicMaterial({ color: 0xebe3c7 }));
+      const line = new LineSegments(edges, material);
       parent.add(line);
       return line;
     }
 
-    // Create rings
-    const ring0 = makeRing(3, scene);
-    const ring1 = makeRing(3.3, ring0);
-    const ring2 = makeRing(3.6, ring1);
+    // Create rings with individual geometries
+    const ring0 = makeRing(geometries.ring1, materials.ringLine1, scene);
+    const ring1 = makeRing(geometries.ring2, materials.ringLine2, ring0);
+    const ring2 = makeRing(geometries.ring3, materials.ringLine3, ring1);
 
     // Create octahedron (main globe)
-    const geometry = new OctahedronGeometry(2, 3);
-    const material = new MeshPhongMaterial({ color: 0x999999, opacity: 0.6, transparent: true });
-    const cube = new Mesh(geometry, material);
+    const cube = new Mesh(geometries.octahedron, materials.octahedronMesh);
     cubeGroup.add(cube);
 
-    const edges = new EdgesGeometry(geometry);
-    const line = new LineSegments(edges, new LineBasicMaterial({ color: 0xE5E4E2 }));
+    const edges = new EdgesGeometry(geometries.octahedron);
+    const line = new LineSegments(edges, materials.octahedronLine);
     line.scale.set(1.1, 1.1, 1.1);
     cubeGroup.add(line);
 
     // Create cylinder
-    const cylinderGeometry = new CylinderGeometry(8, 8, 1000, 3);
-    const cylinderEdges = new EdgesGeometry(cylinderGeometry);
-    const cylinder = new LineSegments(cylinderEdges, new LineBasicMaterial({ color: 0x888888 }));
+    const cylinderEdges = new EdgesGeometry(geometries.cylinder);
+    const cylinder = new LineSegments(cylinderEdges, materials.cylinderLine);
     cylinder.rotation.set(Math.PI / 2, 0, 0);
     scene.add(cylinder);
 
@@ -103,42 +146,106 @@ const HomePage = ({ onAnimationComplete }) => {
       cylinder
     };
 
-    // Animation loop
+    isInitialized.current = true;
+    const initTime = performance.now() - startTime;
+    console.log(`Three.js scene initialized in ${initTime.toFixed(2)}ms`);
+
+    // Memory usage monitoring
+    if (performance.memory) {
+      const memory = performance.memory;
+      console.log(`Memory usage - Used: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(1)}MB, Total: ${(memory.totalJSHeapSize / 1024 / 1024).toFixed(1)}MB`);
+    }
+  }, [geometries, materials]);
+
+  // Separate useEffect for scene initialization - runs only once
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    initializeScene();
+
+    // Optimized animation loop with performance tracking
+    let frameCount = 0;
+    let lastFpsUpdate = performance.now();
+
     function animate() {
-      if (!sceneRef.current.cubeGroup || !sceneRef.current.ring0 || !sceneRef.current.ring1 || !sceneRef.current.ring2 || !sceneRef.current.cylinder || !sceneRef.current.renderer) return;
+      const scene = sceneRef.current;
+      if (!scene.cubeGroup || !scene.ring0 || !scene.ring1 || !scene.ring2 || !scene.cylinder || !scene.renderer) return;
 
-      sceneRef.current.cubeGroup.rotation.x += 0.005;
-      sceneRef.current.cubeGroup.rotation.y += 0.015;
-      sceneRef.current.ring0.rotation.x += 0.006;
-      sceneRef.current.ring0.rotation.y += 0.016;
-      sceneRef.current.ring1.rotation.z += 0.007;
-      sceneRef.current.ring1.rotation.y += 0.017;
-      sceneRef.current.ring2.rotation.x += 0.008;
-      sceneRef.current.ring2.rotation.y += 0.018;
-      sceneRef.current.cylinder.rotation.y += 0.001;
-      sceneRef.current.cylinder.rotation.x -= 0.0005;
-      sceneRef.current.cylinder.rotation.z += 0.0015;
+      // Batch rotation updates for better performance
+      const cube = scene.cubeGroup;
+      const rings = [scene.ring0, scene.ring1, scene.ring2];
+      const cylinder = scene.cylinder;
 
-      sceneRef.current.animationId = requestAnimationFrame(animate);
-      sceneRef.current.renderer.render(sceneRef.current.scene, sceneRef.current.camera);
+      // Update rotations (pre-calculated values)
+      cube.rotation.x += 0.005;
+      cube.rotation.y += 0.015;
+
+      rings[0].rotation.x += 0.006;
+      rings[0].rotation.y += 0.016;
+      rings[1].rotation.z += 0.007;
+      rings[1].rotation.y += 0.017;
+      rings[2].rotation.x += 0.008;
+      rings[2].rotation.y += 0.018;
+
+      cylinder.rotation.y += 0.001;
+      cylinder.rotation.x -= 0.0005;
+      cylinder.rotation.z += 0.0015;
+
+      // Render scene
+      scene.renderer.render(scene.scene, scene.camera);
+
+      // Performance and memory monitoring
+      frameCount++;
+      const now = performance.now();
+      if (now - lastFpsUpdate > 5000) { // Check every 5 seconds instead of 1
+        const fps = frameCount / ((now - lastFpsUpdate) / 1000);
+        if (fps < 30) console.warn(`Low FPS detected: ${fps.toFixed(1)}`);
+
+        // Memory monitoring
+        if (performance.memory) {
+          const memory = performance.memory;
+          const usedMB = (memory.usedJSHeapSize / 1024 / 1024).toFixed(1);
+          if (memory.usedJSHeapSize > 200 * 1024 * 1024) { // Warn if > 200MB
+            console.warn(`High memory usage detected: ${usedMB}MB`);
+          }
+        }
+
+        frameCount = 0;
+        lastFpsUpdate = now;
+      }
+
+      scene.animationId = requestAnimationFrame(animate);
     }
 
     animate();
 
-    // Handle window resize
+    // Handle window resize with throttling
+    let resizeTimeout;
     function handleResize() {
-      if (!sceneRef.current.camera || !sceneRef.current.renderer) return;
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (!sceneRef.current.camera || !sceneRef.current.renderer) return;
 
-      const canvasWidth = window.innerWidth / 2;
-      const canvasHeight = window.innerHeight;
+        const canvasWidth = window.innerWidth / 2;
+        const canvasHeight = window.innerHeight;
 
-      sceneRef.current.camera.aspect = canvasWidth / canvasHeight;
-      sceneRef.current.camera.updateProjectionMatrix();
-      sceneRef.current.renderer.setSize(canvasWidth, canvasHeight);
+        sceneRef.current.camera.aspect = canvasWidth / canvasHeight;
+        sceneRef.current.camera.updateProjectionMatrix();
+        sceneRef.current.renderer.setSize(canvasWidth, canvasHeight);
+      }, 100); // Throttle resize events
     }
 
     window.addEventListener('resize', handleResize);
 
+    // Cleanup function
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimeout) clearTimeout(resizeTimeout);
+    };
+  }, []); // Remove dependencies to prevent re-initialization
+
+  // Separate useEffect for scroll handling to avoid scene re-creation
+  useEffect(() => {
     // 强力滚动阻止函数 - 在前两次滑动期间完全控制滚动
     function handleScroll(event) {
       const now = Date.now();
@@ -208,9 +315,7 @@ const HomePage = ({ onAnimationComplete }) => {
 
     updateBodyScroll();
 
-    // Cleanup function
     return () => {
-      window.removeEventListener('resize', handleResize);
       window.removeEventListener('wheel', handleScroll, { capture: true });
       window.removeEventListener('scroll', preventScroll, { capture: true });
       document.removeEventListener('wheel', preventScroll, { capture: true });
@@ -218,14 +323,8 @@ const HomePage = ({ onAnimationComplete }) => {
       // 恢复页面滚动
       document.body.style.overflow = 'auto';
       document.documentElement.style.overflow = 'auto';
-      if (sceneRef.current.animationId) {
-        cancelAnimationFrame(sceneRef.current.animationId);
-      }
-      if (sceneRef.current.renderer) {
-        sceneRef.current.renderer.dispose();
-      }
     };
-  }, [animationStage, swipeCount]);
+  }, [animationStage, swipeCount, onAnimationComplete]);
 
   // 专门处理滚动状态更新的useEffect
   useEffect(() => {
@@ -237,6 +336,44 @@ const HomePage = ({ onAnimationComplete }) => {
       document.documentElement.style.overflow = 'auto';
     }
   }, [swipeCount]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (sceneRef.current.animationId) {
+        cancelAnimationFrame(sceneRef.current.animationId);
+      }
+      if (sceneRef.current.renderer) {
+        sceneRef.current.renderer.dispose();
+      }
+      // Comprehensive cleanup for memory management
+      if (sceneRef.current.scene) {
+        sceneRef.current.scene.traverse((object) => {
+          if (object.geometry) {
+            object.geometry.dispose();
+          }
+          if (object.material) {
+            if (Array.isArray(object.material)) {
+              object.material.forEach(material => material.dispose());
+            } else {
+              object.material.dispose();
+            }
+          }
+        });
+      }
+
+      // Dispose geometries and materials
+      Object.values(geometries).forEach(geom => {
+        if (geom && typeof geom.dispose === 'function') geom.dispose();
+      });
+      Object.values(materials).forEach(mat => {
+        if (mat && typeof mat.dispose === 'function') mat.dispose();
+      });
+
+      console.log('Three.js scene and resources disposed');
+      isInitialized.current = false;
+    };
+  }, [geometries, materials]);
 
   return (
     <div className="homepage">
@@ -265,4 +402,4 @@ const HomePage = ({ onAnimationComplete }) => {
   );
 };
 
-export default HomePage;
+export default memo(HomePage);

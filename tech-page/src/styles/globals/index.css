@@ -22,6 +22,7 @@ body, html {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
+  max-width: 100vw;
   font-family: 'Microsoft YaHei UI', '微软雅黑', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   font-weight: 400;
   line-height: 1.6;
@@ -30,12 +31,14 @@ body, html {
 #root {
   width: 100%;
   min-height: 100vh;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
-/* Light background color scheme based on prototype */
+/* Dark background to match the tech showcase design */
 body {
-  background: linear-gradient(135deg, #C8D5E0 0%, #B8C8D5 50%, #A8B8C8 100%);
-  color: #2c3e50;
+  background: #000000;
+  color: #ffffff;
 }
 
 /* Typography */

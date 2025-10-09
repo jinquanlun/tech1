@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import HomePage from './HomePage.jsx';
 import TechShowcasePage from './TechShowcasePage.jsx';
@@ -43,4 +43,4 @@ const MainPage = () => {
   );
 };
 
-export default MainPage;
+export default memo(MainPage);

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Mesh,
   PlaneGeometry,
@@ -15,22 +15,31 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
   const containerRef = useRef(null);
 
   useEffect(() => {
+    // Early exit if canvas is not available
+    if (!canvasRef.current) {
+      console.warn('Canvas ref not available for WebGL initialization');
+      return;
+    }
+
+    // Check WebGL support before proceeding
+    const testCanvas = document.createElement('canvas');
+    const testGl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
+
+    if (!testGl) {
+      console.warn('WebGL not supported, skipping 3D background');
+      return;
+    }
+
+    // Clean up test canvas
+    testCanvas.remove();
+
     // 性能检测：根据设备能力调整精度，但保持原始效果
     const getOptimalSettings = () => {
-      const canvas = document.createElement('canvas');
-      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-
-      if (!gl) return { segments: planeSize / 4, quality: 'low' };
-
-      // 检测GPU能力
-      const renderer = gl.getParameter(gl.RENDERER);
       const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
-      const isLowEnd = isMobile || renderer.includes('Intel');
+      const isLowEnd = isMobile;
 
       if (isLowEnd) {
         return { segments: planeSize / 4, quality: 'low' }; // 减少顶点但保持比例
-      } else if (renderer.includes('NVIDIA') || renderer.includes('AMD')) {
-        return { segments: planeSize / 2, quality: 'high' }; // 中等精度
       } else {
         return { segments: planeSize / 3, quality: 'medium' }; // 平衡精度
       }
@@ -46,14 +55,13 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
         };
         this.mesh = this.createMesh();
         this.time = speed * 0.5; // 减慢整体动画速度
+        this.shaderProgram = null;
       }
 
       createMesh() {
-        return new Mesh(
-          new PlaneGeometry(planeSize, planeSize, settings.segments, settings.segments),
-          new RawShaderMaterial({
-            uniforms: this.uniforms,
-            vertexShader: `
+        const material = new RawShaderMaterial({
+          uniforms: this.uniforms,
+          vertexShader: `
               #define GLSLIFY 1
               attribute vec3 position;
               uniform mat4 projectionMatrix;
@@ -173,25 +181,119 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
               }
             `,
             transparent: true
-          })
+          });
+
+        // Store material reference for cleanup
+        this.material = material;
+
+        return new Mesh(
+          new PlaneGeometry(planeSize, planeSize, settings.segments, settings.segments),
+          material
         );
       }
 
       render(time) {
-        this.uniforms.time.value += time * this.time;
+        // Simplified and more reliable uniform update
+        try {
+          if (this.uniforms && this.uniforms.time && typeof this.uniforms.time.value === 'number') {
+            this.uniforms.time.value += time * this.time;
+          }
+        } catch (error) {
+          // Silently continue if uniform update fails
+          console.warn('Uniform update failed:', error.message);
+        }
+      }
+
+      dispose() {
+        // Properly dispose of geometry and material
+        if (this.mesh) {
+          if (this.mesh.geometry) {
+            this.mesh.geometry.dispose();
+          }
+          if (this.mesh.material) {
+            this.mesh.material.dispose();
+          }
+        }
       }
     }
 
-    // Three.js setup - 添加性能优化但保持原始逻辑
-    const renderer = new WebGLRenderer({
-      canvas: canvasRef.current,
-      antialias: false,
-      powerPreference: "high-performance",
-      stencil: false,
-      depth: true,
-      alpha: true,
-      preserveDrawingBuffer: false
-    });
+    // Three.js setup with comprehensive error handling
+    let renderer;
+    let webglContext;
+
+    try {
+      const canvas = canvasRef.current;
+
+      // More thorough canvas validation
+      if (!canvas || !canvas.parentNode) {
+        console.warn('Canvas element not properly mounted');
+        return;
+      }
+
+      // Check if canvas already has a context without creating one
+      let hasExistingContext = false;
+      try {
+        // Check if canvas has a rendering context without creating one
+        if (canvas.width !== undefined && canvas.height !== undefined) {
+          // Canvas dimensions suggest it might have been used
+          hasExistingContext = canvas.width > 0 || canvas.height > 0;
+        }
+      } catch (e) {
+        // If any error, assume canvas is clean
+        hasExistingContext = false;
+      }
+
+      // Always use a fresh canvas to avoid context conflicts
+      const newCanvas = document.createElement('canvas');
+      newCanvas.style.cssText = canvas.style.cssText;
+      newCanvas.className = canvas.className;
+      canvas.parentNode.replaceChild(newCanvas, canvas);
+      canvasRef.current = newCanvas;
+
+      // Validate WebGL support with more checks
+      const testCanvas = document.createElement('canvas');
+      webglContext = testCanvas.getContext('webgl', { failIfMajorPerformanceCaveat: false }) ||
+                     testCanvas.getContext('experimental-webgl', { failIfMajorPerformanceCaveat: false });
+
+      if (!webglContext) {
+        console.warn('WebGL not supported on this device/browser');
+        testCanvas.remove();
+        return;
+      }
+
+      // Test WebGL capabilities
+      const maxTextureSize = webglContext.getParameter(webglContext.MAX_TEXTURE_SIZE);
+      const maxVertexAttribs = webglContext.getParameter(webglContext.MAX_VERTEX_ATTRIBS);
+
+      if (maxTextureSize < 1024 || maxVertexAttribs < 8) {
+        console.warn('WebGL capabilities insufficient for this scene');
+        testCanvas.remove();
+        return;
+      }
+
+      testCanvas.remove();
+
+      // Create renderer with safer settings
+      renderer = new WebGLRenderer({
+        canvas: canvasRef.current,
+        antialias: false,
+        powerPreference: "default", // Changed from high-performance for compatibility
+        stencil: false,
+        depth: true,
+        alpha: true,
+        preserveDrawingBuffer: false,
+        failIfMajorPerformanceCaveat: false
+      });
+
+      // Validate renderer creation
+      if (!renderer || !renderer.getContext()) {
+        throw new Error('WebGL renderer creation failed');
+      }
+
+    } catch (error) {
+      console.warn('Failed to create WebGL renderer:', error.message);
+      return; // Exit early if renderer creation fails
+    }
 
     const scene = new Scene();
     const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
@@ -206,55 +308,122 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     const resize = () => {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+      try {
+        const canvas = canvasRef.current;
+        if (canvas && renderer && camera) {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+      } catch (error) {
+        console.warn('Resize error:', error.message);
       }
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
     };
 
     const render = () => {
-      plane.render(clock.getDelta());
-      renderer.render(scene, camera);
+      try {
+        // Validate all components before rendering
+        if (!renderer || !scene || !camera || !plane || !clock) {
+          return;
+        }
+
+        const deltaTime = clock.getDelta();
+        // Clamp delta time to prevent large jumps
+        const clampedDelta = Math.min(deltaTime, 0.1);
+
+        // Update plane animation
+        plane.render(clampedDelta);
+
+        // Render the scene
+        renderer.render(scene, camera);
+      } catch (error) {
+        console.warn('WebGL render error caught and handled:', error.message);
+        // Continue with next frame instead of crashing
+      }
     };
 
+    let animationId;
     const renderLoop = () => {
+      // Check visibility first
       if (!isVisible) {
-        requestAnimationFrame(renderLoop);
+        animationId = requestAnimationFrame(renderLoop);
         return;
       }
 
-      render();
-      requestAnimationFrame(renderLoop);
+      // Only render if all components are available
+      if (renderer && scene && camera && plane) {
+        render();
+      }
+
+      animationId = requestAnimationFrame(renderLoop);
     };
 
     const init = () => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setClearColor(0x000000, 0); // 保持原始透明背景
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // 限制像素比例
+      try {
+        // Validate renderer before proceeding
+        if (!renderer || !renderer.getContext()) {
+          console.warn('WebGL renderer not available');
+          return;
+        }
 
-      camera.position.set(0, 16, cameraZ);
-      camera.lookAt(new Vector3(0, 28, 0));
-      scene.add(plane.mesh);
-      window.addEventListener('resize', resize);
-      resize();
-      renderLoop();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0); // 保持原始透明背景
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // 限制像素比例
+
+        camera.position.set(0, 16, cameraZ);
+        camera.lookAt(new Vector3(0, 28, 0));
+        scene.add(plane.mesh);
+        window.addEventListener('resize', resize);
+        resize();
+        renderLoop();
+      } catch (error) {
+        console.warn('Failed to initialize WebGL scene:', error.message);
+        return;
+      }
     };
 
     init();
 
     return () => {
-      // 清理资源
+      // Cancel animation frame
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+
+      // Clean up event listeners
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
 
-      // 释放WebGL资源
-      if (plane.mesh.geometry) plane.mesh.geometry.dispose();
-      if (plane.mesh.material) plane.mesh.material.dispose();
-      if (renderer) renderer.dispose();
+      // Proper cleanup with error handling
+      try {
+        if (plane) {
+          plane.dispose();
+        }
+
+        if (scene) {
+          scene.clear();
+        }
+
+        if (renderer) {
+          // Get context before disposing
+          const gl = renderer.getContext();
+
+          // Dispose renderer first
+          renderer.dispose();
+
+          // Then force context loss if extension is available
+          if (gl) {
+            const loseContextExt = gl.getExtension('WEBGL_lose_context');
+            if (loseContextExt) {
+              loseContextExt.loseContext();
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('Error during WebGL cleanup:', error.message);
+      }
     };
   }, []); // 移除依赖项避免重复初始化
 
@@ -276,6 +445,18 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
 };
 
 export default function InfiniteHero() {
+    const [webglSupported, setWebglSupported] = useState(true);
+
+    // Test WebGL support
+    useEffect(() => {
+        const testCanvas = document.createElement('canvas');
+        const testGl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
+        if (!testGl) {
+            setWebglSupported(false);
+        }
+        testCanvas.remove();
+    }, []);
+
     return (
         <div style={{
             position: 'relative',
@@ -293,7 +474,25 @@ export default function InfiniteHero() {
                 bottom: 0,
                 left: 0
             }}>
-                <GLSLHills />
+                {webglSupported ? (
+                    <GLSLHills />
+                ) : (
+                    // CSS fallback animation
+                    <div style={{
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(45deg, #1a1a1a, #2d2d2d, #1a1a1a)',
+                        backgroundSize: '400% 400%',
+                        animation: 'gradientShift 8s ease-in-out infinite'
+                    }}>
+                        <style>{`
+                            @keyframes gradientShift {
+                                0%, 100% { background-position: 0% 50%; }
+                                50% { background-position: 100% 50%; }
+                            }
+                        `}</style>
+                    </div>
+                )}
             </div>
 
             {/* 文字内容 */}
