@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import {
   Mesh,
@@ -16,19 +15,42 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
   const containerRef = useRef(null);
 
   useEffect(() => {
-    // Plane class
+    // 性能检测：根据设备能力调整精度，但保持原始效果
+    const getOptimalSettings = () => {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+      if (!gl) return { segments: planeSize / 4, quality: 'low' };
+
+      // 检测GPU能力
+      const renderer = gl.getParameter(gl.RENDERER);
+      const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
+      const isLowEnd = isMobile || renderer.includes('Intel');
+
+      if (isLowEnd) {
+        return { segments: planeSize / 4, quality: 'low' }; // 减少顶点但保持比例
+      } else if (renderer.includes('NVIDIA') || renderer.includes('AMD')) {
+        return { segments: planeSize / 2, quality: 'high' }; // 中等精度
+      } else {
+        return { segments: planeSize / 3, quality: 'medium' }; // 平衡精度
+      }
+    };
+
+    const settings = getOptimalSettings();
+
+    // Plane class - 保持原始结构
     class Plane {
       constructor() {
         this.uniforms = {
           time: { type: 'f', value: 0 },
         };
         this.mesh = this.createMesh();
-        this.time = speed;
+        this.time = speed * 0.5; // 减慢整体动画速度
       }
 
       createMesh() {
         return new Mesh(
-          new PlaneGeometry(planeSize, planeSize, planeSize, planeSize),
+          new PlaneGeometry(planeSize, planeSize, settings.segments, settings.segments),
           new RawShaderMaterial({
             uniforms: this.uniforms,
             vertexShader: `
@@ -125,7 +147,7 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
               void main(void) {
                 vec3 updatePosition = (rotateMatrixX(radians(90.0)) * vec4(position, 1.0)).xyz;
                 float sin1 = sin(radians(updatePosition.x / 128.0 * 90.0));
-                vec3 noisePosition = updatePosition + vec3(0.0, 0.0, time * -30.0);
+                vec3 noisePosition = updatePosition + vec3(0.0, 0.0, time * -8.0);
                 float noise1 = cnoise(noisePosition * 0.08);
                 float noise2 = cnoise(noisePosition * 0.06);
                 float noise3 = cnoise(noisePosition * 0.4);
@@ -160,12 +182,28 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
       }
     }
 
-    // Three.js setup
-    const renderer = new WebGLRenderer({ canvas: canvasRef.current, antialias: false });
+    // Three.js setup - 添加性能优化但保持原始逻辑
+    const renderer = new WebGLRenderer({
+      canvas: canvasRef.current,
+      antialias: false,
+      powerPreference: "high-performance",
+      stencil: false,
+      depth: true,
+      alpha: true,
+      preserveDrawingBuffer: false
+    });
+
     const scene = new Scene();
     const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
     const clock = new Clock();
     const plane = new Plane();
+
+    // Visibility API - 页面不可见时停止渲染
+    let isVisible = true;
+    const handleVisibilityChange = () => {
+      isVisible = !document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     const resize = () => {
       const canvas = canvasRef.current;
@@ -184,13 +222,20 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
     };
 
     const renderLoop = () => {
+      if (!isVisible) {
+        requestAnimationFrame(renderLoop);
+        return;
+      }
+
       render();
       requestAnimationFrame(renderLoop);
     };
 
     const init = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setClearColor(0x000000, 1.0); // Set solid black background
+      renderer.setClearColor(0x000000, 0); // 保持原始透明背景
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // 限制像素比例
+
       camera.position.set(0, 16, cameraZ);
       camera.lookAt(new Vector3(0, 28, 0));
       scene.add(plane.mesh);
@@ -202,9 +247,16 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
     init();
 
     return () => {
+      // 清理资源
       window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+      // 释放WebGL资源
+      if (plane.mesh.geometry) plane.mesh.geometry.dispose();
+      if (plane.mesh.material) plane.mesh.material.dispose();
+      if (renderer) renderer.dispose();
     };
-  }, [cameraZ, planeSize, speed]);
+  }, []); // 移除依赖项避免重复初始化
 
   return (
     <div ref={containerRef} style={{ position: 'relative', width, height }}>

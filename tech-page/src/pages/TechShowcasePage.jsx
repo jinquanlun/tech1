@@ -40,7 +40,7 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
     }
   }, [location.state, navigate, location.pathname]);
 
-  // 粒子动画相关
+  // 粒子动画相关（内存优化版）
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -51,6 +51,16 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
     let animationId;
     let particles = [];
     let onMobile = window.innerWidth < 768;
+
+    // 内存优化: 缓存颜色字符串避免重复创建
+    const PARTICLE_OUTER_COLOR = "rgba(255,255,255,0.95)";
+    const PARTICLE_INNER_COLOR = "#ffffff";
+    const BG_COLOR_HPH = "rgba(10, 10, 10, 0.3)";
+    const BG_COLOR_PEF = "rgba(26, 29, 36, 0.3)";
+
+    // 缓存常用计算结果
+    let cachedTime = 0;
+    let lastTimeUpdate = 0;
 
     // 设置canvas尺寸
     const resizeCanvas = () => {
@@ -63,41 +73,49 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
 
     resizeCanvas();
 
-    // 变量 - 平衡视觉效果和性能
-    let particleNum = onMobile ? Math.floor(window.innerWidth / 120) : Math.floor(window.innerWidth / 60);
-    if (particleNum < (onMobile ? 12 : 25)) particleNum = onMobile ? 12 : 25;
+    // 恢复原始粒子数量，保持视觉效果
+    let particleNum = onMobile ? Math.floor(window.innerWidth / 130) : Math.floor(window.innerWidth / 70);
+    // 设置合理的粒子数量范围，保持视觉效果但避免性能问题
+    if (particleNum < (onMobile ? 10 : 20)) particleNum = onMobile ? 10 : 20;
+    if (particleNum > (onMobile ? 18 : 35)) particleNum = onMobile ? 18 : 35;
 
-    let minDist = window.innerWidth / 6; // 调整连接距离
-    if (minDist < 180) minDist = 180;
-    else if (minDist > 250) minDist = 250;
+    // 增大连接距离以增强连线效果
+    let minDist = window.innerWidth / 5; // 从1/6改为1/5，增大连接距离
+    if (minDist < 200) minDist = 200; // 提高最小距离
+    else if (minDist > 280) minDist = 280; // 提高最大距离
 
     // 移除未使用的鼠标事件变量
 
-    // 粒子类
+    // 最简化粒子类（保持原始效果）
     class Particle {
       constructor(index) {
-        // 按照原始代码的分布方式
         this.x = index * (window.innerWidth / particleNum);
         this.y = Math.random() * window.innerHeight;
         this.vy = (Math.random() * -1) / 3;
-        this.radius = 1.5; // 固定半径，如原始代码
+        this.radius = 1.5;
+        this.innerRadius = 0.9;
+        this.intX = Math.round(this.x);
+        this.intY = Math.round(this.y);
       }
 
       draw() {
         if (!ctx) return;
-        // 增强粒子可见度
-        ctx.fillStyle = "rgba(255,255,255,0.95)"; // 更明亮的粒子
-        ctx.beginPath();
-        ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI * 2, false);
-        ctx.fill();
-        ctx.closePath();
 
-        // 添加一个更小的亮核心
-        ctx.fillStyle = "#ffffff";
+        // 保持原始双圆效果
+        ctx.fillStyle = PARTICLE_OUTER_COLOR;
         ctx.beginPath();
-        ctx.arc(Math.round(this.x), Math.round(this.y), this.radius * 0.6, 0, Math.PI * 2, false);
+        ctx.arc(this.intX, this.intY, this.radius, 0, Math.PI * 2);
         ctx.fill();
-        ctx.closePath();
+
+        ctx.fillStyle = PARTICLE_INNER_COLOR;
+        ctx.beginPath();
+        ctx.arc(this.intX, this.intY, this.innerRadius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      updatePosition() {
+        this.intX = Math.round(this.x);
+        this.intY = Math.round(this.y);
       }
     }
 
@@ -111,87 +129,137 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
 
     initParticles();
 
-    // 绘制背景颜色
+    // 优化的背景绘制（动态获取当前状态）
     const paintCanvas = () => {
       if (!ctx) return;
-      // 根据当前页面设置适当的背景色
-      const bgColor = focusedSection === 'hph' ? "rgba(10, 10, 10, 0.3)" : "rgba(26, 29, 36, 0.3)";
+      // 动态获取当前focusedSection状态，而不依赖useEffect
+      const currentSection = document.querySelector('.skw-page.active')?.classList.contains('skw-page-1') ? 'hph' : 'pef';
+      const bgColor = currentSection === 'hph' ? BG_COLOR_HPH : BG_COLOR_PEF;
       ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
     };
 
-    // 粒子间距离连线
-    const distance = (p1, p2) => {
-      if (!ctx) return;
-      const dx = p1.x - p2.x;
-      const dy = p1.y - p2.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+    // 注释：distance函数已内联到主循环中以优化性能
 
-      if (dist <= minDist) {
-        ctx.beginPath();
-        // 增强连线可见度
-        const distRatio = 1 - dist / minDist;
-        const opacity = 0.8 * distRatio; // 提高基础透明度
-        const lineWidth = Math.max(0.8, 1.5 * distRatio); // 动态线宽
-        ctx.strokeStyle = `rgba(255,255,255,${opacity})`;
-        ctx.lineWidth = lineWidth;
-        ctx.moveTo(Math.round(p1.x), Math.round(p1.y));
-        ctx.lineTo(Math.round(p2.x), Math.round(p2.y));
-        ctx.stroke();
-        ctx.closePath();
-      }
-    };
+    // 优化的更新函数 - 减少计算频率
+    let frameCount = 0;
+    let connectionUpdateFrame = 0;
+    const connections = []; // 缓存连接状态
 
-    // 更新粒子位置 - 性能优化
     const update = () => {
-      const amplitude = onMobile ? window.innerWidth / 25 : window.innerWidth / 18; // 减少振幅计算
-      let theta = Date.now() * 0.0008; // 稍微减慢动画速度
-      const dx = (Math.PI * 2) / particleNum;
+      const now = Date.now();
+      // 每帧都更新时间，保持最佳流畅度
+      cachedTime = now * 0.0008;
 
+      const amplitude = onMobile ? window.innerWidth / 25 : window.innerWidth / 18;
+      let theta = cachedTime; // 简化时间计算
+      const dx = (Math.PI * 2) / particleNum;
+      frameCount++;
+
+      // 更新粒子位置
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
         if (!onMobile) {
-          // 桌面端多层次运动，覆盖整个屏幕高度
+          // 恢复原始桌面端多层次运动
           const waveOffset = i * dx;
-          const speedVariation = 1 + (i % 3) * 0.2; // 减少速度变化，提升性能
+          const speedVariation = 1 + (i % 3) * 0.2;
 
           if (i % 3 === 0) {
-            // 上半部分运动
             p.y = window.innerHeight * 0.3 + Math.sin(theta * speedVariation + waveOffset) * amplitude;
           } else if (i % 3 === 1) {
-            // 中间部分运动
             p.y = window.innerHeight * 0.5 + Math.cos(theta * speedVariation + waveOffset) * amplitude * 0.8;
           } else {
-            // 下半部分运动
             p.y = window.innerHeight * 0.7 + Math.sin(theta * speedVariation + waveOffset + Math.PI/3) * amplitude * 0.6;
           }
         } else {
-          // 移动端简单运动
           p.y += p.vy;
           if (p.y > window.innerHeight || p.y < 0) {
             p.vy = -p.vy;
           }
         }
 
-        // 边界检查
+        // 恢复原始边界检查
         if (p.x + p.radius > window.innerWidth) p.x = p.radius;
         else if (p.x - p.radius < 0) p.x = window.innerWidth - p.radius;
-
         if (p.y + p.radius > window.innerHeight) p.y = p.radius;
         else if (p.y - p.radius < 0) p.y = window.innerHeight - p.radius;
 
-        // 检查与其他粒子的距离
-        for (let j = i + 1; j < particles.length; j++) {
-          distance(p, particles[j]);
+        // 更新整数坐标缓存
+        p.updatePosition();
+      }
+
+      // 简化连线计算 - 移除帧数限制，恢复原始流畅度
+      connectionUpdateFrame++;
+      connections.length = 0;
+
+      const len = particles.length;
+      const maxDistSquared = minDist * minDist;
+
+      for (let i = 0; i < len; i++) {
+        const p1 = particles[i];
+        for (let j = i + 1; j < len; j++) {
+          const p2 = particles[j];
+
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const distSquared = dx * dx + dy * dy;
+
+          if (distSquared <= maxDistSquared) {
+            const dist = Math.sqrt(distSquared);
+            const distRatio = 1 - dist / minDist;
+            const opacity = Math.max(0.3, 0.9 * distRatio);
+            const lineWidth = Math.max(1.0, 2.0 * distRatio);
+
+            connections.push({
+              x1: p1.intX,
+              y1: p1.intY,
+              x2: p2.intX,
+              y2: p2.intY,
+              opacity: Math.round(opacity * 100) / 100,
+              lineWidth: lineWidth
+            });
+          }
         }
       }
     };
 
-    // 主绘制循环
+    // 高度优化的主绘制循环
     const draw = () => {
       paintCanvas();
-      particles.forEach(p => p.draw());
+
+      // 恢复原始连线绘制方式 - 每条线单独绘制以保持完整效果
+      if (connections.length > 0) {
+        for (let i = 0; i < connections.length; i++) {
+          const conn = connections[i];
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(255,255,255,${conn.opacity})`;
+          ctx.lineWidth = conn.lineWidth;
+          ctx.moveTo(conn.x1, conn.y1);
+          ctx.lineTo(conn.x2, conn.y2);
+          ctx.stroke();
+        }
+      }
+
+      // 批量绘制粒子 - 减少状态切换
+      ctx.fillStyle = PARTICLE_OUTER_COLOR;
+      ctx.beginPath();
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        ctx.moveTo(p.intX + p.radius, p.intY);
+        ctx.arc(p.intX, p.intY, p.radius, 0, Math.PI * 2);
+      }
+      ctx.fill();
+
+      ctx.fillStyle = PARTICLE_INNER_COLOR;
+      ctx.beginPath();
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        ctx.moveTo(p.intX + p.innerRadius, p.intY);
+        ctx.arc(p.intX, p.intY, p.innerRadius, 0, Math.PI * 2);
+      }
+      ctx.fill();
+
       update();
       animationId = requestAnimationFrame(draw);
     };
@@ -201,11 +269,13 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
     const handleResize = () => {
       onMobile = window.innerWidth < 768;
       resizeCanvas();
-      particleNum = onMobile ? Math.floor(window.innerWidth / 120) : Math.floor(window.innerWidth / 60);
-      if (particleNum < (onMobile ? 12 : 25)) particleNum = onMobile ? 12 : 25;
-      minDist = window.innerWidth / 6;
-      if (minDist < 180) minDist = 180;
-      else if (minDist > 250) minDist = 250;
+      // 使用原始粒子数量计算
+      particleNum = onMobile ? Math.floor(window.innerWidth / 130) : Math.floor(window.innerWidth / 70);
+      if (particleNum < (onMobile ? 10 : 20)) particleNum = onMobile ? 10 : 20;
+      if (particleNum > (onMobile ? 18 : 35)) particleNum = onMobile ? 18 : 35;
+      minDist = window.innerWidth / 5;
+      if (minDist < 200) minDist = 200;
+      else if (minDist > 280) minDist = 280;
       initParticles();
     };
 
@@ -215,12 +285,27 @@ const TechShowcasePage = ({ homeAnimationComplete }) => {
     // 开始动画
     draw();
 
-    // 清理函数
+    // 强化的清理函数（防止内存泄漏）
     return () => {
-      cancelAnimationFrame(animationId);
+      // 清理动画
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+      }
+
+      // 清理事件监听
       window.removeEventListener('resize', handleResize);
+
+      // 清理粒子数组
+      particles.length = 0;
+      particles = null;
+
+      // 清理Canvas上下文
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
     };
-  }, [focusedSection]);
+  }, []); // 只初始化一次，不依赖focusedSection
 
 
   const handleCategoryClick = (category, section) => {
